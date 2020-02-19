@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	
+</head>
+<body>
+	<template >
+		<link href="../resources/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="../resources/bootstrap/css/jumbotron.css" rel="stylesheet">
+    <link href="../resources/bootstrap/css/sticky-footer-navbar.css" rel="stylesheet">
+		  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">NOM-035</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Menu 1</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Menu 2</a>
+            </li>          
+          </ul>  
+          <a class="btn btn-primary" href="#">Ingresar</a>&nbsp;
+          <a class="btn btn-primary" href="#">Registrarse</a>
+        </div>
+      </nav>
+	</template>
+	
+</body>
+</html>
+
+<script type="text/javascript">
+   var prototipo = Object.create(HTMLElement.prototype);
+ var template = document.currentScript.ownerDocument.querySelector('template').content;
+
+ prototipo.createdCallback = function() {
+ var clonTemplate = document.importNode(template, true);
+ this.createShadowRoot().appendChild(clonTemplate);
+ }
+
+ document.registerElement('menu-index', {
+ prototype: prototipo
+ });
+</script>
