@@ -1,61 +1,127 @@
-<!doctype html>
+<!DOCTYPE doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="favicon.ico">
-
-    <title>NOM-035 | Aplicación para evaluar los factores de riesgo psicosociales en el trabajo.</title>
-    <!-- Bootstrap core CSS -->
-    <link href="../../resources/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <!-- Custom styles for this template -->
-    <link href="../../resources/bootstrap/css/jumbotron.css" rel="stylesheet">
-    <link href="../../resources/bootstrap/css/sticky-footer-navbar.css" rel="stylesheet">
-  </head>
-
-  <body>
-
-    <header>
-      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">NOM-035</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-
-        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-              <a class="nav-link active" href="../../index.html">Inicio</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Guia de referencia I</a>
-            </li>
-                   
-          </ul>  
-          <a class="btn btn-primary" href="../../vistas/iniciar_sesion/iniciar_sesion.html">Ingresar</a>&nbsp;
-          
-        </div>
-      </nav>
-    </header>
-
-    
-
-    <footer class="footer">
-      <div class="container">
-        <p>
-          &copy; 2020 NOM-035, Inc. | WebApp Desarrollada con PHP| Autor: UTN <a style="color: white;" href="#">Privacy</a>
-          &middot; <a style="color: white;" href="#">Terms</a>
-        </p>
-      </div>
-    </footer>
-
-    <!-- Bootstrap core JavaScript
+    <head>
+        <meta charset="utf-8">
+            <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+                <meta content="" name="description">
+                    <meta content="" name="author">
+                        <link href="favicon.ico" rel="icon">
+                            <title>
+                                NOM-035 | Aplicación para evaluar los factores de riesgo psicosociales en el trabajo.
+                            </title>
+                            <!-- Bootstrap core CSS -->
+                            <link href="../../resources/bootstrap/css/bootstrap.css" rel="stylesheet">
+                                <!-- Custom styles for this template -->
+                                <link href="../../resources/bootstrap/css/jumbotron.css" rel="stylesheet">
+                                    <link href="../../resources/bootstrap/css/sticky-footer-navbar.css" rel="stylesheet">
+                                    </link>
+                                </link>
+                            </link>
+                        </link>
+                    </meta>
+                </meta>
+            </meta>
+        </meta>
+    </head>
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+                <a class="navbar-brand" href="#">
+                    NOM-035
+                </a>
+                <button aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbarsExampleDefault" data-toggle="collapse" type="button">
+                    <span class="navbar-toggler-icon">
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="../../index.html">
+                                Inicio
+                            </a>
+                        </li>
+                    </ul>
+                    <a class="btn btn-primary" href="../../vistas/iniciar_sesion/iniciar_sesion.html">
+                        Ingresar
+                    </a>
+                </div>
+            </nav>
+        </header>
+        <main role="main">
+            <hr>
+                <div class="container-norma">
+                    <div class="cards">
+                        <div class="card-body">
+                            <form class="form-signin" method="post">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <img alt="" class="mb-4 rounded mx-auto d-block" height="128" src="../../resources/img/lock.png" width="128">
+                                            <h4 class="h3 mb-3 font-weight-normal">
+                                                Ingresar
+                                            </h4>
+                                            <label class="sr-only" for="username">
+                                                Numero de empleado
+                                            </label>
+                                            <input autofocus="" class="form-control" id="num_empleado" maxlength="10" minlength="6" name="num_empleado" onkeypress="return solo_numeros(event);" placeholder="Numero de empleado" required="true" type="text">
+                                                <br>
+                                                    <label class="sr-only" for="password">
+                                                        Contraseña
+                                                    </label>
+                                                    <input class="form-control" id="password" minlength="8" name="password" placeholder="Contraseña" required="true" type="password">
+                                                        <br>
+                                                            <button class="btn btn-lg btn-primary btn-block" type="submit">
+                                                                Entrar
+                                                            </button>
+                                                        </br>
+                                                    </input>
+                                                </br>
+                                            </input>
+                                        </img>
+                                    </div>
+                                    <div class="col-md-4">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- /container -->
+            </hr>
+        </main>
+        <br/>
+        <br/>
+        <br/>
+        <footer class="footer">
+            <div class="container">
+                <p>
+                    © 2020 NOM-035, Inc. | WebApp Desarrollada con PHP| Autor: UTN
+                    <a href="#" style="color: white;">
+                        Privacy
+                    </a>
+                    ·
+                    <a href="#" style="color: white;">
+                        Terms
+                    </a>
+                </p>
+            </div>
+        </footer>
+        <!-- Bootstrap core JavaScript
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="resources/bootstrap/js/bootstrap.min.js"></script>
-  </body>
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js">
+        </script>
+        <script src="resources/bootstrap/js/bootstrap.min.js">
+        </script>
+        <script type="text/javascript">
+            function solo_numeros(e){
+                var keynum = window.event ? window.event.keyCode : e.which;
+                 if ((keynum == 8) || (keynum == 46))
+                    return true;
+                
+                    return /\d/.test(String.fromCharCode(keynum));
+                }
+        </script>
+    </body>
 </html>

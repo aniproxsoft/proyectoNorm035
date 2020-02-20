@@ -554,6 +554,14 @@ pre code {
   background-color: #038C65;
   color: white ;
 }
+.container-norma {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+  color: #038C65;
+}
 
 
 @media (min-width: 576px) {
@@ -579,6 +587,31 @@ pre code {
     max-width: 1140px;
   }
 }
+
+@media (min-width: 576px) {
+  .container-norma {
+    max-width: 540px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-norma {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container-norma {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container-norma {
+    max-width: 1140px;
+  }
+}
+
 
 .container-fluid {
   width: 100%;
@@ -4586,6 +4619,13 @@ input[type="button"].btn-block {
   flex: 1 1 auto;
   padding: 1.25rem;
 }
+.card-body-norma {
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  padding: 1.25rem;
+  color:black;
+}
+
 
 .card-title {
   margin-bottom: 0.75rem;
