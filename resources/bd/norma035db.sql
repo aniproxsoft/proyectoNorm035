@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 20-02-2020 a las 07:05:30
+-- Tiempo de generación: 26-02-2020 a las 05:15:11
 -- Versión del servidor: 5.7.19
 -- Versión de PHP: 5.6.31
 
@@ -81,6 +81,24 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_autentification` (`empleado_num`
     
 END$$
 
+DROP PROCEDURE IF EXISTS `sp_get_employees`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_employees` (`opcion` VARCHAR(10))  BEGIN
+	if(opcion='all')THEN
+		SELECT e.num_empleado,e.nombre_empleado,e.apellidos,
+        CONCAT(e.nombre_empleado, ' ' , e.apellidos)as nombre_completo,
+        e.edad,e.sexo,(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
+        WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,e.nivel_estudios_id,ne.nombre_estudios,
+        (SELECT CASE WHEN e.statatus_estudios='1' THEN 'Terminada' ELSE 'Incompleta' end) as estatus_estudios,
+        e.division_id,d.nombre_division,e.usuario_id,us.rol_id,ur.nombre_rol
+		from empleado e
+      	INNER JOIN usuario us on us.usuario_id=e.usuario_id 
+        INNER JOIN nivel_estudios ne on e.nivel_estudios_id=ne.nivel_estudios_id
+        INNER JOIN division d on e.division_id=d.division_id
+        INNER JOIN usuario_rol ur on us.rol_id=ur.rol_id
+       	;
+	END if;
+END$$
+
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -130,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `empleado` (
   KEY `FK_nivel_estudios` (`nivel_estudios_id`),
   KEY `FK_division` (`division_id`),
   KEY `FK_usuario` (`usuario_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12345679 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `empleado`
