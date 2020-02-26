@@ -1,3 +1,15 @@
+<?php
+include '../../php/DTO/UsuarioDTO.php';
+session_start();
+// error_reporting(0);
+$sesion  = $_SESSION['usuario'];
+$usuario = unserialize($sesion);
+if (!isset($sesion)) {
+    header("Location:../../vistas/iniciar_sesion/iniciar_sesion.html");
+    die();
+}
+
+?>
 <!DOCTYPE doctype html>
 <html lang="en">
     <head>
@@ -36,14 +48,20 @@
                 <div class="collapse navbar-collapse" id="navbarsExampleDefault">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item">
-                            <a class="nav-link active" href="../../index.html">
+                            <a class="nav-link" 
+                                href="<?php if($usuario->getRol_id()==1){
+                                    echo '../adm/adm_index.php';
+                                }elseif ($usuario->getRol_id()==2 or $usuario->getRol_id()==3) {
+                                    echo '../emp/emp_index.php';
+                                }?>">
                                 Inicio
                             </a>
                         </li>
                     </ul>
-                    <a class="btn btn-primary" href="../../vistas/iniciar_sesion/iniciar_sesion.html">
-                        Ingresar
-                    </a>
+                    <div class="btn-group">
+                       <?php $usuario->setMenu_user($usuario->getNombre_empleado());
+                       echo $usuario->getMenu_user();?>
+                   </div>
                 </div>
             </nav>
         </header>
@@ -52,38 +70,23 @@
                 <div class="container-norma">
                     <div class="cards">
                         <div class="card-body">
-                            <form action="../../php/controller/CtrlIniciarSesion.php" class="form-signin" method="post">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <img alt="" class="mb-4 rounded mx-auto d-block" height="128" src="../../resources/img/lock.png" width="128">
-                                            <h4 class="h3 mb-3 font-weight-normal">
-                                                Ingresar
-                                            </h4>
-                                            <label class="sr-only" for="username">
-                                                Numero de empleado
-                                            </label>
-                                            <input autofocus="" class="form-control" id="num_empleado" maxlength="10" minlength="6" name="num_empleado" onkeypress="return solo_numeros(event);" placeholder="Numero de empleado" required="true" type="text">
-                                                <br>
-                                                    <label class="sr-only" for="password">
-                                                        Contraseña
-                                                    </label>
-                                                    <input class="form-control" id="password" minlength="8" name="password" placeholder="Contraseña" required="true" type="password">
-                                                        <br>
-                                                            <button class="btn btn-lg btn-primary btn-block" type="submit">
-                                                                Entrar
-                                                            </button>
-                                                        </br>
-                                                    </input>
-                                                </br>
-                                            </input>
-                                        </img>
-                                    </div>
-                                    <div class="col-md-4">
-                                    </div>
+                            <div class="row">
+                                <div class="col-md-4">
                                 </div>
-                            </form>
+                                <div class="col-md-4">
+                                    <img alt="" class="mb-4 rounded mx-auto d-block" height="128" src="../../resources/img/denegado.png" width="128">
+                                        <center>
+                                            <h2 class="h3 mb-3 font-weight-normal">
+                                                !Lo Sentimos!
+                                                <br/>
+                                                Acceso Denegado
+                                            </h2>
+                                        </center>
+                                    </img>
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -112,7 +115,7 @@
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js">
         </script>
-        <script src="resources/bootstrap/js/bootstrap.min.js">
+        <script src="../../resources/bootstrap/js/bootstrap.min.js">
         </script>
         <script type="text/javascript">
             function solo_numeros(e){

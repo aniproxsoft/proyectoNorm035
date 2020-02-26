@@ -14,7 +14,7 @@ class connectionDB extends mysqli
     {
         try{
   
-            $this->conn = new PDO("mysql:host=$this->DB_HOST;dbname=$this->DB_NAME",$this->DB_USER,
+            $this->conn = new PDO("mysql:host=$this->DB_HOST;charset=UTF8;dbname=$this->DB_NAME",$this->DB_USER,
                 $this->DB_PASS);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   

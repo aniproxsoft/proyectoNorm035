@@ -53,3 +53,23 @@ BEGIN
     END if;
     
 END
+
+
+DELIMITER //
+CREATE PROCEDURE sp_get_employees(opcion varchar(10))
+BEGIN
+	if(opcion='all')THEN
+		SELECT e.num_empleado,e.nombre_empleado,e.apellidos,
+        CONCAT(e.nombre_empleado, ' ' , e.apellidos)as nombre_completo,
+        e.edad,e.sexo,(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
+        WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,e.nivel_estudios_id,ne.nombre_estudios,
+        (SELECT CASE WHEN e.statatus_estudios='1' THEN 'Terminada' ELSE 'Incompleta' end) as estatus_estudios,
+        e.division_id,d.nombre_division,e.usuario_id,us.rol_id,ur.nombre_rol
+		from empleado e
+      	INNER JOIN usuario us on us.usuario_id=e.usuario_id 
+        INNER JOIN nivel_estudios ne on e.nivel_estudios_id=ne.nivel_estudios_id
+        INNER JOIN division d on e.division_id=d.division_id
+        INNER JOIN usuario_rol ur on us.rol_id=ur.rol_id
+       	;
+	END if;
+END

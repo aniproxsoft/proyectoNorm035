@@ -7,48 +7,72 @@ $conexion->exec("set names utf8");
 
 $usuario = new UsuarioDTO();
 
-$usuario->setEmail($_POST['email']);
-$usuario->setPassword($_POST['password']);
-
+$num_empleado=$_POST['num_empleado'];
+$password=$_POST['password'];
+try {
 $statement = $conexion->prepare("CALL sp_autentification(?,?)");
-
-$correo   = $usuario->getEmail();
-$password = $usuario->getPassword();
-//string s int i poner todos los atributos
-$statement->bind_param("ss", $correo, $password);
-
+$statement->bindParam(1,$num_empleado);
+$statement->bindParam(2,$password);
 $statement->execute();
-//iduser flag msj en el orden q return
-$statement->bind_result($flag, $id_rol, $nombre, $apellidos, $email, $nombre_rol, $nombre_empresa, $direccion, $nombre_estado, $nombre_ciudad, $codigo_postal, $num_telefono, $folio_convenio, $rfc, $status);
 
-$statement->fetch();
-$usuario->setNombre($nombre);
-$usuario->setApellidos($apellidos);
-$usuario->setNombreRol($nombre_rol);
-$usuario->setDireccion($direccion);
-$usuario->setNombreEmpresa($nombre_empresa);
-$usuario->setNombreEstado($nombre_estado);
-$usuario->setNombreCiudad($nombre_ciudad);
-$usuario->setCodigoPostal($codigo_postal);
-$usuario->setNumTelefono($num_telefono);
-$usuario->setFolioConvenio($folio_convenio);
-$usuario->setRFC($rfc);
-$usuario->setStatus($status);
-$usuario->setIDRol($id_rol);
-if ($flag == 1 and $usuario->getIDRol() == 1) {
+$respuesta = array();
+
+while($row=$statement->fetch(PDO::FETCH_ASSOC)){
+  
+      $respuesta[] = $row;
+ 
+}
+
+$usuario->setFlag($respuesta[0]["flag"]);
+$usuario->setNum_empleado($respuesta[0]["num_empleado"]);
+$usuario->setNombre_empleado($respuesta[0]["nombre_empleado"]);
+$usuario->setApellidos($respuesta[0]["apellidos"]);
+$usuario->setNombre_completo($respuesta[0]["nombre_completo"]);
+$usuario->setEdad($respuesta[0]["edad"]);
+$usuario->setSexo($respuesta[0]["sexo"]);
+$usuario->setSexo_completo($respuesta[0]["sexo_completo"]);
+$usuario->setNivel_estudios_id($respuesta[0]["nivel_estudios_id"]);
+$usuario->setNombre_estudios($respuesta[0]["nombre_estudios"]);
+$usuario->setEstatus_estudios($respuesta[0]["estatus_estudios"]);
+$usuario->setDivision_id($respuesta[0]["division_id"]);
+$usuario->setNombre_division($respuesta[0]["nombre_division"]);
+$usuario->setUsuario_id($respuesta[0]["usuario_id"]);
+$usuario->setRol_id($respuesta[0]["rol_id"]);
+$usuario->setNombre_rol($respuesta[0]["nombre_rol"]);
+
+}catch(PDOException $e){
+	echo 'Error conectando con la base de datos: ' . $e->getMessage();
+}
+
+
+if ($usuario->getFlag() == 1 and $usuario->getRol_id() == 1) {
     session_start();
     $_SESSION['usuario'] = serialize($usuario);
-    header("Location:../Vacantes/inicio_vacantes.php");
-} else {
+    header("Location:../../vistas/adm/adm_index.php");
+} else if($usuario->getFlag() == 1 and ($usuario->getRol_id() == 2 or $usuario->getRol_id() == 3)){
+	session_start();
+	$_SESSION['usuario'] = serialize($usuario);
+    header("Location:../../vistas/emp/emp_index.php");
+}else {
     ?>
 	<script type="text/javascript">
 		alert("Error contraseña y/o correo incorrecto")
-		location.href="iniciar_sesion.html";
+		location.href="../../vistas/iniciar_sesion/iniciar_sesion.html";
 		//poner msj q esta en bd
 	</script>
 	<?php
 
 }
-$statement->close();
-$conexion->close();
+$statement->closeCursor(); // opcional en MySQL, dependiendo del controlador de base de datos puede ser obligatorio
+$statement = null; // obligado para cerrar la conexión
+$db = null;
+$conexion=null;
 ?>
+
+
+
+
+
+
+
+
