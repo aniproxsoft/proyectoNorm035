@@ -90,7 +90,7 @@ $empleado=$ctrlEmpleados->getEmpleadoSeleccionado($num_empleado);
      
 
         <div class="card" id="datos_emp">
-          <h4 class="card-header"><strong>Datos del empleado: <?php echo $usuario->getNombre_completo()?></strong></h4>              
+          <h4 class="card-header"><strong>Datos del empleado</strong></h4>              
           <div class="card-body">
                          
               <div class="row">
