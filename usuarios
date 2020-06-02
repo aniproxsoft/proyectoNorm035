@@ -1,0 +1,15 @@
+num empleado: 123456
+nombre: luis manuel
+password: 12345678
+rol: administrador
+
+num empleado: 12345678
+nombre: gerardo pluma
+password: n/a
+rol: Docente
+
+num empleado:12345688
+nombre: maria mexica
+password: n/a
+rol:Docente
+

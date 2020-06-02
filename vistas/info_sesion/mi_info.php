@@ -155,7 +155,7 @@ if (!isset($sesion)) {
         <!-- Bootstrap core JavaScript
     ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js">
+         <script src="../../resources/js/jquery-3.3.1.min.js">
         </script>
         <script src="../../resources/bootstrap/js/bootstrap.min.js">
         </script>

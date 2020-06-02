@@ -4,18 +4,24 @@ require_once "../DTO/UsuarioDTO.php";
 $db       = new connectionDB();
 $conexion = $db->get_connection();
 $conexion->exec("set names utf8");
+//error_reporting(0);
 
 $usuario = new UsuarioDTO();
-
+$opc=$_POST['opc'];
 $num_empleado=$_POST['num_empleado'];
-$password=$_POST['password'];
+if(isset($_POST['password'])){
+	$password=$_POST['password'];
+}
+
 try {
-$statement = $conexion->prepare("CALL sp_autentification(?,?)");
+$statement = $conexion->prepare("CALL sp_autentification(?,?,?)");
 $statement->bindParam(1,$num_empleado);
 $statement->bindParam(2,$password);
+$statement->bindParam(3,$opc);
 $statement->execute();
 
 $respuesta = array();
+
 
 while($row=$statement->fetch(PDO::FETCH_ASSOC)){
   
@@ -39,6 +45,7 @@ $usuario->setNombre_division($respuesta[0]["nombre_division"]);
 $usuario->setUsuario_id($respuesta[0]["usuario_id"]);
 $usuario->setRol_id($respuesta[0]["rol_id"]);
 $usuario->setNombre_rol($respuesta[0]["nombre_rol"]);
+$usuario->setStatus($respuesta[0]["status"]);
 
 }catch(PDOException $e){
 	echo 'Error conectando con la base de datos: ' . $e->getMessage();
@@ -49,18 +56,24 @@ if ($usuario->getFlag() == 1 and $usuario->getRol_id() == 1) {
     session_start();
     $_SESSION['usuario'] = serialize($usuario);
     header("Location:../../vistas/adm/adm_index.php");
-} else if($usuario->getFlag() == 1 and ($usuario->getRol_id() == 2 or $usuario->getRol_id() == 3)){
+} else if($usuario->getFlag() == 1 and $usuario->getStatus() == 2  ){
 	session_start();
 	$_SESSION['usuario'] = serialize($usuario);
-    header("Location:../../vistas/emp/emp_index.php");
+    header("Location:../../vistas/emp/guia1.php");
 }else {
-    ?>
-	<script type="text/javascript">
-		alert("Error contraseña y/o correo incorrecto")
-		location.href="../../vistas/iniciar_sesion/iniciar_sesion.html";
-		//poner msj q esta en bd
-	</script>
-	<?php
+	if($opc==1){
+			echo '<script type="text/javascript">alert("Error, contraseña y/o usuario incorrecto");location.href="../../vistas/iniciar_sesion/iniciar_sesion.html";</script>';
+	}elseif ($opc==2) {
+		if($usuario->getStatus()==3){
+			echo '<script type="text/javascript">alert("Este usuario ya realizó la Guía ");location.href="../../index.html";</script>';
+		}elseif($usuario->getStatus()==1){
+			echo '<script type="text/javascript">alert("No tiene permiso de realizar la Guía");location.href="../../index.html";</script>';
+		}else{
+			echo '<script type="text/javascript">alert("Numero de empleado incorrecto ");location.href="../../index.html";</script>';
+		}
+			
+	}
+
 
 }
 $statement->closeCursor(); // opcional en MySQL, dependiendo del controlador de base de datos puede ser obligatorio

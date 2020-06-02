@@ -2,7 +2,7 @@
 
 include '../../php/DTO/UsuarioDTO.php';
 require_once '../../php/controller/CtrlEmpleados.php';
- header("Content-Type: text/html;charset=utf-8");
+header("Content-Type: text/html;charset=utf-8");
 session_start();
 // error_reporting(0);
 $sesion  = $_SESSION['usuario'];
@@ -15,6 +15,8 @@ if (!isset($sesion)) {
         header("Location:../../vistas/iniciar_sesion/acceso_denegado.php");
     }
 }
+$ctrlEmpleados= new CtrlEmpleados();
+$empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
 ?>
 
 <!DOCTYPE doctype html>
@@ -66,7 +68,7 @@ if (!isset($sesion)) {
                         </li>
                     
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Carga Masiva</a>
+                            <a class="nav-link" href="permisos.php">Permisos de usuario</a>
                         </li>
                     </ul>
                    <div class="btn-group">
@@ -86,15 +88,13 @@ if (!isset($sesion)) {
       <div class="container-norma" style="background-color: white"> 
         <h2 class="font-weight-bold text-center text-capitalize">Empleados</h2>
         <hr>
-        <a class="btn btn-primary bt-sm" href="nuevo_empleado.php"
-						title="Crear nueva Oferta de Trabajo" role="button"><i
-						class="fas fa-plus" aria-hidden="true"></i> Nueva</a>
-						<hr>
+        
         <?php for ($i=0; $i < count($empleados) ; $i++) { 
         	echo "<div class='row' style='color: black'>
           
           <div class='col-md-9'>
             <h4>".$empleados[$i]['nombre_completo']."</h4>
+            <h5 class='card-title'><strong>".$empleados[$i]['num_empleado']." </strong> </h5>
             <h6 class='card-title'><strong>".$empleados[$i]['nombre_rol']." </strong> </h6>
             <h6 class='card-title'><strong>División: </strong> <span>".$empleados[$i]['nombre_division']."</span></h6>                
             <p>Sexo: ".$empleados[$i]['sexo_completo']."</p>
@@ -102,13 +102,13 @@ if (!isset($sesion)) {
           </div>
           <div class='col-md-3'>
           	<div>
-          		<a href='#' class='btn btn-primary ' style='width:20%'
-									role='button' title='Editar el registro.'><i
-										class='fas fa-pencil-alt' aria-hidden='true'></i></a> <a href='#'
+          		<a href='detalle_emp.php?num=". base64_encode ($empleados[$i]['num_empleado'])."' class='btn btn-primary ' style='width:20%'
+									role='button' title='Ver el detalle'><i
+										class='fas fa-eye' aria-hidden='true'></i></a> <!--<a href='#'
 									onclick=''
 									class='btn btn-primary ' style='width:20%' role='button'
 									title='Eliminar el registro.'><i class='fas fa-trash'
-										aria-hidden='true'></i></a>
+										aria-hidden='true'></i></a>-->
           	</div>
           	
           </div>
@@ -141,7 +141,7 @@ if (!isset($sesion)) {
         <!-- Bootstrap core JavaScript
     ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js">
+         <script src="../../resources/js/jquery-3.3.1.min.js">
         </script>
         <script src="../../resources/bootstrap/js/bootstrap.min.js">
         </script>

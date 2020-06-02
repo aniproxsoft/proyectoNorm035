@@ -49,51 +49,87 @@
         </header>
         <main role="main">
             <hr>
-                <div class="container-norma">
-                    <div class="card">
-                        <h4 class="card-header">
+                <div class="card-body-norma">
+                    <center>
+                        <img alt="Generic placeholder image" class="rounded mx-auto d-block" height="180" src="resources/img/utn_256.png" width="180">
+                        </img>
+                        <h4>
+                            UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL
                         </h4>
-                        <div class="card-body-norma">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <img alt="Generic placeholder image" class="rounded mx-auto d-block" height="220" src="resources/img/utn_256.png" width="220">
-                                    </img>
-                                </div>
-                                <div class="col-md-9">
+                        <h4 class="card-title">
+                            Organismo Público Descentralizado del Gobierno del Estado de México.
+                            <br/>
+                            <br/>
+                            <span>
+                                <strong>
                                     <h2>
-                                        UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL
+                                        Guía de Referencia I
                                     </h2>
-                                    <h6 class="card-title">
-                                        <strong>
-                                            Organismo Público Descentralizado del Gobierno del Estado de México.
-                                        </strong>
-                                        <br/>
-                                        <span>
-                                            Guía de Referencia I
-                                            <br/>
-                                            Norma Oficial Mexicana NOM-035-STPS-2018, Factores de riesgo psicosocial en el trabajo.
-                                        </span>
-                                        <br/>
-                                    </h6>
-                                    <p>
-                                        Cuestionario para identificara los trabajadores que fueron sujetos a acontecimientos traumaticos severos y que requieran valoración clínica.
-                                    </p>
-                                    <br/>
-                                    <span>
-                                        Para mayores detalles véase
-                                        <a href="https://www.dof.gob.mx/nota_detalle.php?codigo=5541828&fecha=23/10/2018">
-                                            https://www.dof.gob.mx/nota_detalle.php?codigo=5541828&fecha;=23/10/2018
-                                        </a>
-                                    </span>
-                                    <br/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                </strong>
+                                <br/>
+                                Norma Oficial Mexicana NOM-035-STPS-2018, Factores de riesgo psicosocial en el trabajo.
+                            </span>
+                            <br/>
+                        </h4>
+                        <p>
+                            <strong>
+                                Cuestionario para identificara los trabajadores que fueron sujetos a acontecimientos traumaticos severos y que requieran valoración clínica.
+                            </strong>
+                        </p>
+                        <br/>
+                        <button class="btn btn-primary" data-target="#realizarGuiaModal" data-toggle="modal" type="button">
+                            Realizar Guía
+                        </button>
+                        <br/>
+                        <br/>
+                        <span>
+                            Para mayores detalles véase
+                            <a href="https://www.dof.gob.mx/nota_detalle.php?codigo=5541828&fecha=23/10/2018">
+                                https://www.dof.gob.mx/nota_detalle.php?codigo=5541828&fecha;=23/10/2018
+                            </a>
+                        </span>
+                        <br/>
+                    </center>
                 </div>
                 <!-- /container -->
             </hr>
         </main>
+        <!-- Modal -->
+        <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="realizarGuiaModal" role="dialog" tabindex="-1">
+            <form action="php/controller/CtrlIniciarSesion.php" class="form-signin" method="post">
+                <input name="opc" type="hidden" value="2">
+                </input>
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">
+                                Acceder a la Guía
+                            </h5>
+                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                                <span aria-hidden="true">
+                                    ×
+                                </span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <label class="sr-only" for="username">
+                                Numero de empleado
+                            </label>
+                            <input autofocus="" class="form-control" id="num_empleado" maxlength="10" minlength="6" name="num_empleado" onkeypress="return solo_numeros(event);" placeholder="Numero de empleado" required="true" type="text">
+                            </input>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-dismiss="modal" type="button">
+                                Cancelar
+                            </button>
+                            <button class="btn btn-primary" type="submit">
+                                Enviar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
         <footer class="footer">
             <div class="container">
                 <p>
@@ -111,9 +147,18 @@
         <!-- Bootstrap core JavaScript
     ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js">
+        <script src="resources/js/jquery-3.3.1.min.js">
         </script>
         <script src="resources/bootstrap/js/bootstrap.min.js">
+        </script>
+        <script type="text/javascript">
+            function solo_numeros(e){
+                var keynum = window.event ? window.event.keyCode : e.which;
+                 if ((keynum == 8) || (keynum == 46))
+                    return true;
+                
+                    return /\d/.test(String.fromCharCode(keynum));
+                }
         </script>
     </body>
 </html>

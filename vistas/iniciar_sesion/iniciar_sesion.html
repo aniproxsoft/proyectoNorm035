@@ -53,36 +53,38 @@
                     <div class="cards">
                         <div class="card-body">
                             <form action="../../php/controller/CtrlIniciarSesion.php" class="form-signin" method="post">
-                                <div class="row">
-                                    <div class="col-md-4">
+                                <input name="opc" type="hidden" value="1">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <img alt="" class="mb-4 rounded mx-auto d-block" height="128" src="../../resources/img/lock.png" width="128">
+                                                <h4 class="h3 mb-3 font-weight-normal">
+                                                    Ingresar
+                                                </h4>
+                                                <label class="sr-only" for="username">
+                                                    Numero de empleado
+                                                </label>
+                                                <input autofocus="" class="form-control" id="num_empleado" maxlength="10" minlength="6" name="num_empleado" onkeypress="return solo_numeros(event);" placeholder="Numero de empleado" required="true" type="text">
+                                                    <br>
+                                                        <label class="sr-only" for="password">
+                                                            Contraseña
+                                                        </label>
+                                                        <input class="form-control" id="password" minlength="8" name="password" placeholder="Contraseña" required="true" type="password">
+                                                            <br>
+                                                                <button class="btn btn-lg btn-primary btn-block" type="submit">
+                                                                    Entrar
+                                                                </button>
+                                                            </br>
+                                                        </input>
+                                                    </br>
+                                                </input>
+                                            </img>
+                                        </div>
+                                        <div class="col-md-4">
+                                        </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <img alt="" class="mb-4 rounded mx-auto d-block" height="128" src="../../resources/img/lock.png" width="128">
-                                            <h4 class="h3 mb-3 font-weight-normal">
-                                                Ingresar
-                                            </h4>
-                                            <label class="sr-only" for="username">
-                                                Numero de empleado
-                                            </label>
-                                            <input autofocus="" class="form-control" id="num_empleado" maxlength="10" minlength="6" name="num_empleado" onkeypress="return solo_numeros(event);" placeholder="Numero de empleado" required="true" type="text">
-                                                <br>
-                                                    <label class="sr-only" for="password">
-                                                        Contraseña
-                                                    </label>
-                                                    <input class="form-control" id="password" minlength="8" name="password" placeholder="Contraseña" required="true" type="password">
-                                                        <br>
-                                                            <button class="btn btn-lg btn-primary btn-block" type="submit">
-                                                                Entrar
-                                                            </button>
-                                                        </br>
-                                                    </input>
-                                                </br>
-                                            </input>
-                                        </img>
-                                    </div>
-                                    <div class="col-md-4">
-                                    </div>
-                                </div>
+                                </input>
                             </form>
                         </div>
                     </div>

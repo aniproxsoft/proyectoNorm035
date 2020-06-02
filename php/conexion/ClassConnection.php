@@ -5,7 +5,7 @@ class connectionDB extends mysqli
     private $DB_HOST = 'localhost';
     //private $DB_HOST = 'host web';
     private $DB_USER = 'root';
-    private  $DB_PASS = '';
+    private  $DB_PASS = 'admin';
     //private $DB_PASS = 'pass host';
     private $DB_NAME = 'norma035db';
     private $conn;

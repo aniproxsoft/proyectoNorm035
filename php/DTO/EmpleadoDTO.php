@@ -16,6 +16,9 @@ class EmpleadoDTO {
     private $estatus_estudios;
     private $division_id;
     private $nombre_division;
+    private $status;
+    private $acceso;
+    private $status_guia;
 
 	
 
@@ -135,6 +138,30 @@ class EmpleadoDTO {
     public function setNombre_division($nombre_division)
     {
         return $this->nombre_division=$nombre_division;
+    }
+    public function getStatus()
+    {
+        return $this->status;
+    }
+    public function setStatus($status)
+    {
+        return $this->status=$status;
+    }
+    public function getAcceso()
+    {
+        return $this->acceso;
+    }
+    public function setAcceso($acceso)
+    {
+        return $this->acceso=$acceso;
+    }
+    public function getStatusGuia()
+    {
+        return $this->status_guia;
+    }
+    public function setStatusGuia($status_guia)
+    {
+        return $this->status_guia=$status_guia;
     }
 
 }

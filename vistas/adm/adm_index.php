@@ -58,12 +58,12 @@ if (!isset($sesion)) {
                                 Inicio
                             </a>
                         </li>
-                        <li class="nav-item">
+                         <li class="nav-item">
                             <a class="nav-link" href="empleados.php">Empleados</a>
                         </li>
                     
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Carga Masiva</a>
+                        <li class="nav-item" >
+                            <a class="nav-link" href="permisos.php">Permisos de usuario</a>
                         </li>
                     </ul>
                    <div class="btn-group">
@@ -74,49 +74,49 @@ if (!isset($sesion)) {
                 </div>
             </nav>
         </header>
-        <main role="main">
+         <main role="main">
             <hr>
-                <div class="container-norma">
-                    <div class="card">
-                        <h4 class="card-header">
+                <div class="card-body-norma">
+                    <center>
+                        <img alt="Generic placeholder image" class="rounded mx-auto d-block" height="180" src="../../resources/img/utn_256.png" width="180">
+                        </img>
+                        <h4>
+                            UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL
                         </h4>
-                        <div class="card-body-norma">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <img alt="Generic placeholder image" class="rounded mx-auto d-block" height="220" src="../../resources/img/utn_256.png" width="220">
-                                    </img>
-                                </div>
-                                <div class="col-md-9">
+                        <h4 class="card-title">
+                            Organismo Público Descentralizado del Gobierno del Estado de México.
+                            <br/>
+                            <br/>
+                            <span>
+                                <strong>
                                     <h2>
-                                        UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL
+                                        Guía de Referencia I
                                     </h2>
-                                    <h6 class="card-title">
-                                        <strong>
-                                            Organismo Público Descentralizado del Gobierno del Estado de México.
-                                        </strong>
-                                        <br/>
-                                        <span>
-                                            Guía de Referencia I
-                                            <br/>
-                                            Norma Oficial Mexicana NOM-035-STPS-2018, Factores de riesgo psicosocial en el trabajo.
-                                        </span>
-                                        <br/>
-                                    </h6>
-                                    <p>
-                                        Cuestionario para identificara los trabajadores que fueron sujetos a acontecimientos traumaticos severos y que requieran valoración clínica.
-                                    </p>
-                                    <br/>
-                                    <span>
-                                        Para mayores detalles véase
-                                        <a href="https://www.dof.gob.mx/nota_detalle.php?codigo=5541828&fecha=23/10/2018">
-                                            https://www.dof.gob.mx/nota_detalle.php?codigo=5541828&fecha;=23/10/2018
-                                        </a>
-                                    </span>
-                                    <br/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                </strong>
+                                <br/>
+                                Norma Oficial Mexicana NOM-035-STPS-2018, Factores de riesgo psicosocial en el trabajo.
+                            </span>
+                            <br/>
+                        </h4>
+                        <p>
+                            <strong>
+                                Cuestionario para identificara los trabajadores que fueron sujetos a acontecimientos traumaticos severos y que requieran valoración clínica.
+                            </strong>
+                        </p>
+                        <br/>
+                        <!--<button class="btn btn-primary" data-target="#realizarGuiaModal" data-toggle="modal" type="button">
+                            Realizar Guía
+                        </button>-->
+                        <br/>
+                        <br/>
+                        <span>
+                            Para mayores detalles véase
+                            <a href="https://www.dof.gob.mx/nota_detalle.php?codigo=5541828&fecha=23/10/2018">
+                                https://www.dof.gob.mx/nota_detalle.php?codigo=5541828&fecha;=23/10/2018
+                            </a>
+                        </span>
+                        <br/>
+                    </center>
                 </div>
                 <!-- /container -->
             </hr>
@@ -142,7 +142,7 @@ if (!isset($sesion)) {
         <!-- Bootstrap core JavaScript
     ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js">
+        <script src="../../resources/js/jquery-3.3.1.min.js">
         </script>
         <script src="../../resources/bootstrap/js/bootstrap.min.js">
         </script>
