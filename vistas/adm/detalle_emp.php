@@ -186,8 +186,10 @@ $empleado=$ctrlEmpleados->getEmpleadoSeleccionado($num_empleado);
            <hr>
               <strong>Guias Realizadas</strong>
               <br>
-              <a href="#" class='form-text' style='color: blue'
+              <?php echo "
+              <a href='resultados_guia1.php?num=". base64_encode ($empleado[0]['num_empleado'])."' class='form-text' style='color: blue'
                                      title='Ver el detalle'>Guía 1</a>
+                                    "; ?>
           </div>
         </div>
       </div> <!-- /container -->

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.4
+-- version 4.8.4
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 02-06-2020 a las 02:48:44
--- Versión del servidor: 5.7.19
--- Versión de PHP: 5.6.31
+-- Tiempo de generación: 05-06-2020 a las 04:34:29
+-- Versión del servidor: 5.7.24
+-- Versión de PHP: 7.2.14
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -157,7 +157,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_employees` (IN `opcion` VARC
         e.edad,e.sexo,(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
         WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,e.nivel_estudios_id,ne.nombre_estudios,
         (SELECT CASE WHEN e.status_estudios='1' THEN 'Terminada' ELSE 'Incompleta' end) as estatus_estudios,
-        e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol
+        e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol,resultado_guia1(e.num_empleado) as status_guia
         from empleado e
         LEFT JOIN usuario us on us.usuario_id=e.usuario_id 
         LEFT JOIN nivel_estudios ne on e.nivel_estudios_id=ne.nivel_estudios_id
@@ -169,7 +169,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_employees` (IN `opcion` VARC
         e.edad,e.sexo,(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
         WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,e.nivel_estudios_id,ne.nombre_estudios,
         (SELECT CASE WHEN e.status_estudios='1' THEN 'Terminada' ELSE 'Incompleta' end) as estatus_estudios,
-        e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol
+        e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol,resultado_guia1(e.num_empleado) as status_guia
         from empleado e
         LEFT JOIN usuario us on us.usuario_id=e.usuario_id 
         LEFT JOIN nivel_estudios ne on e.nivel_estudios_id=ne.nivel_estudios_id
@@ -199,6 +199,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_employee_select` (IN `opcion
             WHERE e.num_empleado=num_employee
             and e.status=3;
     END IF;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_get_guiaResuelta`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_guiaResuelta` (IN `num_empleado` INT(11))  BEGIN
+    SELECT p.pregunta_desc as pregunta,(SELECT CASE WHEN UPPER(r.valor_respuesta)=1 THEN "Si" 
+        WHEN UPPER(r.valor_respuesta)=0 THEN "No" END)as respuesta from pregunta p, respuesta r
+    where p.pregunta_id= r.pregunta_id
+    and r.num_empleado= num_empleado;
 END$$
 
 DROP PROCEDURE IF EXISTS `sp_get_nivel_estudios`$$
@@ -407,6 +415,49 @@ END$$
 --
 -- Funciones
 --
+DROP FUNCTION IF EXISTS `resultado_guia1`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `resultado_guia1` (`idEmpleado` INT(11)) RETURNS VARCHAR(500) CHARSET utf8 begin 
+	DECLARE msj varchar(500);
+	DECLARE contador integer(2);
+	DECLARE cont_ii integer(2);
+	DECLARE cont_iii integer(2);
+	DECLARE cont_iv integer(2);
+
+	SELECT valor_respuesta FROM respuesta r 
+	INNER JOIN pregunta p ON r.pregunta_id= p.pregunta_id
+	WHERE valor_respuesta=0 AND p.seccion_id=1 AND num_empleado=idEmpleado into contador;
+
+	SELECT COUNT(valor_respuesta) FROM respuesta r
+	INNER JOIN pregunta p ON p.pregunta_id= r.pregunta_id
+	WHERE valor_respuesta=1 AND p.seccion_id=2 AND num_empleado=idEmpleado into cont_ii;
+
+	SELECT COUNT(valor_respuesta) FROM respuesta r
+	INNER JOIN pregunta p ON p.pregunta_id= r.pregunta_id
+	WHERE valor_respuesta=1 AND p.seccion_id=3 AND num_empleado=idEmpleado into cont_iii;
+
+	SELECT COUNT(valor_respuesta) FROM respuesta r
+	INNER JOIN pregunta p ON p.pregunta_id= r.pregunta_id
+	WHERE valor_respuesta=1 AND p.seccion_id=4 AND num_empleado=idEmpleado into cont_iv;
+
+	IF(contador=0)THEN
+		set msj="El Tabajador No Requiere de Valoración Clínica";
+
+    ELSE
+    	
+
+		IF(cont_ii>=1 || cont_iii >=3 || cont_iv >=4)THEN
+		set msj ="El Trabajador REQUIERE de Valoración Clínica";
+		
+		END IF;
+
+    END IF;
+
+    
+
+
+return msj;
+end$$
+
 DROP FUNCTION IF EXISTS `sp_calcula_antiguedad`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `sp_calcula_antiguedad` (`fecha` DATE) RETURNS VARCHAR(800) CHARSET latin1 BEGIN
 DECLARE antiguedad varchar(800);

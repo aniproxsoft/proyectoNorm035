@@ -19,6 +19,8 @@ class EmpleadoDTO {
     private $status;
     private $acceso;
     private $status_guia;
+    private $pregunta;
+    private $respuesta;
 
 	
 
@@ -162,6 +164,22 @@ class EmpleadoDTO {
     public function setStatusGuia($status_guia)
     {
         return $this->status_guia=$status_guia;
+    }
+    public function getPregunta()
+    {
+        return $this->pregunta;
+    }
+    public function setPregunta($pregunta)
+    {
+        return $this->pregunta=$pregunta;
+    }
+    public function getRespuesta()
+    {
+        return $this->respuesta;
+    }
+    public function setRespuesta($respuesta)
+    {
+        return $this->respuesta=$respuesta;
     }
 
 }

@@ -16,7 +16,10 @@ if (!isset($sesion)) {
     }
 }
 $ctrlEmpleados= new CtrlEmpleados();
-$empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
+
+$num_empleado=base64_decode(filter_input(INPUT_GET, "num"));
+$empleado=$ctrlEmpleados->getEmpleadoSeleccionado($num_empleado);
+$resultadoGuia=$ctrlEmpleados->getResultadoGuia($num_empleado);
 ?>
 
 <!DOCTYPE doctype html>
@@ -38,9 +41,8 @@ $empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
                                     <link href="../../resources/bootstrap/css/sticky-footer-navbar.css" rel="stylesheet">
                                     </link>
                                     <link href="../../resources/font/all.css" rel="stylesheet">
-                                </link>
-                            </link>
-                        </link>
+                                    <link href="../../resources/css/norma.css" rel="stylesheet">
+                           
                     </meta>
                 </meta>
             </meta>
@@ -83,54 +85,41 @@ $empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
         
 
      
-       <br>
+       <br><br>
       
-      <div class="container-norma" style="background-color: white"> 
-        <h2 class="font-weight-bold text-center text-capitalize">Empleados</h2>
-        <hr>
-        
-        <?php for ($i=0; $i < count($empleados) ; $i++) { 
+       <div class="container-norma"> 
+     
 
-        	echo "<div class='row' style='color: black'>
-          
-          <div class='col-md-9'>
-            <h4>".$empleados[$i]['nombre_completo']."</h4>
-            <h5 class='card-title'><strong>".$empleados[$i]['num_empleado']." </strong> </h5>
-            <h6 class='card-title'><strong>".$empleados[$i]['nombre_rol']." </strong> </h6>
-            <h6 class='card-title'><strong>División: </strong> <span>".$empleados[$i]['nombre_division']."</span></h6>                
-            <p>Sexo: ".$empleados[$i]['sexo_completo']."</p>";
+        <div class="card" id="datos_emp">
+          <h4 class="card-header"><strong>Resultados de la Guía 1 de <?php echo $empleado[0]['nombre_completo']?></strong></h4>              
+          <div class="card-body">
+                         
+               <table class="table table-hover">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">Sección / Pregunta</th>
+                    <th scope="col">Respuestas</th>
+                  </tr>
+                </thead>
+              <?php foreach($resultadoGuia as $registro) { ?>
+                <tbody>
+                  
+                  <td scope="row"><?php echo $registro['pregunta'] ?></td>
+                  <td scope="row"><?php echo $registro['respuesta'] ?></td>
+                    
+              <?php } ?>      
+                </tbody>
+              </table>
 
-            if ($empleados[$i]['status_guia']=="El Trabajador REQUIERE de Valoración Clínica") {
-                echo "<h5 class='card-title' style='color: red'><strong>".$empleados[$i]['status_guia']." </strong> </h5>";
-            } elseif ($empleados[$i]['status_guia']=="El Tabajador No Requiere de Valoración Clínica") {
-                echo "<h5 class='card-title' style='color: green'><strong>".$empleados[$i]['status_guia']." </strong> </h5>";
-            }
-            
-                
-            
-            
-           echo "            
-          </div>
-          <div class='col-md-3'>
-          	<div>
-          		<a href='detalle_emp.php?num=". base64_encode ($empleados[$i]['num_empleado'])."' class='btn btn-primary ' style='width:20%'
-									role='button' title='Ver el detalle'><i
-										class='fas fa-eye' aria-hidden='true'></i></a> <!--<a href='#'
-									onclick=''
-									class='btn btn-primary ' style='width:20%' role='button'
-									title='Eliminar el registro.'><i class='fas fa-trash'
-										aria-hidden='true'></i></a>-->
-          	</div>
-          	
-          </div>
-        </div>  <hr>";
-
-        } ?>
-        
-       
+              </div>                  
               
-    		  <hr>	
+
+
+              
+           </div>
+           
       </div> <!-- /container -->
+<br>
 
 
     

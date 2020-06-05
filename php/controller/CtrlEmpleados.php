@@ -7,6 +7,7 @@ class CtrlEmpleados {
  	private $niveles_estudio=array();
  	private $divisiones=array();
  	private $puestos=array();
+ 	private $resultadosguia=array();
 
 	public function __construct(){
 
@@ -172,6 +173,30 @@ class CtrlEmpleados {
 		}
 		
 		return $this->empleados;
+
+	}
+
+	public function getResultadoGuia($num_empleado){
+ 		try {
+ 			$this->db       = new connectionDB();
+ 			$this->conexion = $this->db->get_connection();
+			$statement = $this->conexion->prepare("CALL sp_get_guiaResuelta(?)");
+			$statement->bindParam(1,$num_empleado);
+			$statement->execute();
+
+			while($row=$statement->fetch(PDO::FETCH_ASSOC)){
+      			
+      			$this->resultadosguia[] = $row;
+			}
+			$statement->closeCursor();
+			$statement = null; // obligado para cerrar la conexión
+			$db = null;
+			$conexion=null;
+		}catch(PDOException $e){
+			echo 'Error conectando con la base de datos: ' . $e->getMessage();
+		}
+		
+		return $this->resultadosguia;
 
 	}
 
