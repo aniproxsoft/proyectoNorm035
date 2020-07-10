@@ -88,7 +88,7 @@ $empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
       <div class="container-norma" style="background-color: white"> 
         <h2 class="font-weight-bold text-center text-capitalize">Empleados</h2>
         <hr>
-        
+        <div  style="position: relative;height: 450px;overflow: auto;">
         <?php for ($i=0; $i < count($empleados) ; $i++) { 
 
         	echo "<div class='row' style='color: black'>
@@ -129,7 +129,7 @@ $empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
         
        
               
-    		  <hr>	
+    		  <hr>	</div>
       </div> <!-- /container -->
 
 

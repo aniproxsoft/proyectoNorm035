@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 10-07-2020 a las 03:34:22
+-- Tiempo de generación: 10-07-2020 a las 19:51:02
 -- Versión del servidor: 5.7.19
 -- Versión de PHP: 5.6.31
 
@@ -427,11 +427,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_respuestas` (IN `jsonResp
 
                         WHILE _index < json_items DO 
                 
-                            Insert into respuesta (num_empleado,pregunta_id, valor_respuesta)
+                            Insert into respuesta (num_empleado,pregunta_id, valor_respuesta,guia_id)
                             VALUES(
                             (Select replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,'].usuario')), '"', '')),
                                 (Select replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,'].pregunta_id')), '"', '')),
-                                (Select replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,']. resp')), '"', ''))
+                                (Select replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,']. resp')), '"', '')),
+                                1
                             );
                             SET COUNT = (select ROW_count());
                             if(COUNT>0)then
@@ -460,19 +461,25 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_respuestas_guia_2` (IN `j
     DECLARE countInsert int UNSIGNED DEFAULT 0;
     DECLARE json_items int UNSIGNED   DEFAULT  JSON_LENGTH(jsonRespuestas); 
     DECLARE _index int UNSIGNED DEFAULT 0;
+    DECLARE _index2 int UNSIGNED DEFAULT 41;
+
     DECLARE respuesta varchar (800);
     DECLARE id_pregunta int UNSIGNED DEFAULT 0;
+    DECLARE empleado_num int UNSIGNED DEFAULT 0;
     
-
+        SELECT replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,'].usuario')), '"', '') 
+        into empleado_num;
                         WHILE _index < json_items DO 
                             Select replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,']. resp')), '"', '') 
                             into respuesta;
                             Select replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,'].pregunta_id')), '"', '') 
                             into id_pregunta;
                             SELECT sp_get_valor_respuesta(id_pregunta,respuesta) into resp_valor;
+                            
                             Insert into respuesta (num_empleado,pregunta_id, valor_respuesta,guia_id)
+                          
                             VALUES(
-                                (Select replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,'].usuario')), '"', '')),
+                                empleado_num,
                                 id_pregunta,
                                 resp_valor,
                                 2
@@ -486,16 +493,34 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_respuestas_guia_2` (IN `j
                                 set msj='Se registraron correctamente las respuestas';
                             else set msj='no se inserto prro';
                             end if;
-                    
+                        
                 
                             SET _index := _index + 1; 
                 
  
                         END WHILE; 
+                        WHILE _index2 < 47 DO
+                            IF(sp_get_exists_pregunta_guia_2(_index2,empleado_num)=FALSE)THEN
+                                Insert into respuesta (num_empleado,pregunta_id, valor_respuesta,guia_id)
+                          
+                                VALUES(
+                                    empleado_num,
+                                    _index2,
+                                    NULL,
+                                    2
+                                
+                                );
+                            END IF;
+
+                            SET _index2 := _index2 + 1; 
+                        END WHILE; 
+
+
+
 
             COMMIT;
             Select respuesta_id, num_empleado, pregunta_id, valor_respuesta,msj, countInsert
-            from respuesta;
+            from respuesta WHERE guia_id=2 AND num_empleado=empleado_num ;
            End$$
 
 DROP PROCEDURE IF EXISTS `sp_update_num_empleado`$$
@@ -924,42 +949,67 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_desc_respuesta_guia_2` (`id_p
 
 END$$
 
+DROP FUNCTION IF EXISTS `sp_get_exists_pregunta_guia_2`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_exists_pregunta_guia_2` (`id_pregunta` INT(11), `empleado_num` INT(11)) RETURNS TINYINT(1) BEGIN
+ DECLARE respuesta boolean;
+ DECLARE id_encontrado int(11);   
+    SELECT r.pregunta_id
+    FROM respuesta r
+    WHERE pregunta_id =id_pregunta
+    and r.num_empleado=empleado_num
+    and r.guia_id=2 into id_encontrado;
+    IF(id_encontrado is null)THEN
+        set respuesta=false;
+    ELSE
+        set respuesta=true;
+    END IF;
+
+    RETURN respuesta;
+
+END$$
+
 DROP FUNCTION IF EXISTS `sp_get_valor_respuesta`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_valor_respuesta` (`id_pregunta` INT(11), `respuesta` VARCHAR(200)) RETURNS INT(11) BEGIN
 DECLARE forma_evaluar int UNSIGNED DEFAULT 0;
 DECLARE valor int UNSIGNED DEFAULT 0;
     SELECT vp.forma_evaluar_id
-	from valores_opciones vp
-	where vp.pregunta_id= id_pregunta into forma_evaluar;
+    from valores_opciones vp
+    where vp.pregunta_id= id_pregunta into forma_evaluar;
 
     IF(forma_evaluar=1)THEN
-		CASE respuesta 
-			WHEN 'NUNCA' THEN
-				set valor=4;
-			WHEN 'CASI NUNCA' THEN
-				set valor=3;
-			WHEN 'ALGUNAS VECES' THEN
-				set valor=2;
-			WHEN 'CASI SIEMPRE' THEN
-				set valor=1;
-			WHEN 'SIEMPRE' THEN
-				set valor=0;
-		END CASE;
+        CASE respuesta 
+            WHEN 'NUNCA' THEN
+                set valor=4;
+            WHEN 'CASI NUNCA' THEN
+                set valor=3;
+            WHEN 'ALGUNAS VECES' THEN
+                set valor=2;
+            WHEN 'CASI SIEMPRE' THEN
+                set valor=1;
+            WHEN 'SIEMPRE' THEN
+                set valor=0;
+            ELSE
+            set valor=null;
+
+
+        END CASE;
 
     ELSE IF(forma_evaluar=2)THEN
-    	CASE respuesta 
-    		WHEN 'NUNCA' THEN
-				set valor=0;
-			WHEN 'CASI NUNCA' THEN
-				set valor=1;
-			WHEN 'ALGUNAS VECES' THEN
-				set valor=2;
-			WHEN 'CASI SIEMPRE' THEN
-				set valor=3;
-			WHEN 'SIEMPRE' THEN
-				set valor=4;
-		END CASE;
-    	END IF;
+        CASE respuesta 
+            WHEN 'NUNCA' THEN
+                set valor=0;
+            WHEN 'CASI NUNCA' THEN
+                set valor=1;
+            WHEN 'ALGUNAS VECES' THEN
+                set valor=2;
+            WHEN 'CASI SIEMPRE' THEN
+                set valor=3;
+            WHEN 'SIEMPRE' THEN
+                set valor=4;
+            ELSE
+                set valor=null;
+        END CASE;
+        END IF;
     END IF;
     
     
@@ -1224,7 +1274,8 @@ INSERT INTO `empleado` (`num_empleado`, `nombre_empleado`, `apellidos`, `edad`, 
 (12345679, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
 (12345688, 'María de los Santos', 'Mexica Rivera', 56, 'F', 7, '1', 2, NULL, 2, '2007-04-05', '2007-04-05', '3'),
 (22334455, 'Gilberto', 'Pacheco Gallegos', 43, 'M', 7, '1', 2, NULL, 2, '2003-05-02', '2001-04-01', '3'),
-(87654321, 'Enrrique', 'Perez Sulivan', 67, 'M', 2, '1', 1, NULL, 2, '2020-06-03', '2020-06-01', '0');
+(87654321, 'Enrrique', 'Perez Sulivan', 67, 'M', 2, '1', 1, NULL, 2, '2020-06-03', '2020-06-01', '0'),
+(98765432, 'Luisa ', 'Puebla', 34, 'F', 6, '1', 2, NULL, 2, '2012-02-02', '2012-02-02', '3');
 
 -- --------------------------------------------------------
 
@@ -1398,7 +1449,7 @@ CREATE TABLE IF NOT EXISTS `respuesta` (
   PRIMARY KEY (`respuesta_id`),
   KEY `fk_resp` (`num_empleado`),
   KEY `fk_resp_preg` (`pregunta_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=120 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=265 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `respuesta`
@@ -1522,7 +1573,106 @@ INSERT INTO `respuesta` (`respuesta_id`, `num_empleado`, `pregunta_id`, `guia_id
 (116, 12345688, 37, 2, 1),
 (117, 12345688, 38, 2, 2),
 (118, 12345688, 39, 2, 2),
-(119, 12345688, 40, 2, 0);
+(119, 12345688, 40, 2, 0),
+(120, 12345688, 41, 2, NULL),
+(121, 12345688, 42, 2, NULL),
+(122, 12345688, 43, 2, NULL),
+(123, 12345688, 44, 2, NULL),
+(124, 12345688, 45, 2, NULL),
+(125, 12345688, 46, 2, NULL),
+(126, 12345678, 1, 2, 1),
+(127, 12345678, 2, 2, 1),
+(128, 12345678, 3, 2, 1),
+(129, 12345678, 4, 2, 0),
+(130, 12345678, 5, 2, 1),
+(131, 12345678, 6, 2, 1),
+(132, 12345678, 7, 2, 0),
+(133, 12345678, 8, 2, 1),
+(134, 12345678, 9, 2, 0),
+(135, 12345678, 10, 2, 0),
+(136, 12345678, 11, 2, 1),
+(137, 12345678, 12, 2, 0),
+(138, 12345678, 13, 2, 1),
+(139, 12345678, 14, 2, 1),
+(140, 12345678, 15, 2, 0),
+(141, 12345678, 16, 2, 0),
+(142, 12345678, 17, 2, 1),
+(143, 12345678, 18, 2, 4),
+(144, 12345678, 19, 2, 3),
+(145, 12345678, 20, 2, 3),
+(146, 12345678, 21, 2, 4),
+(147, 12345678, 22, 2, 3),
+(148, 12345678, 23, 2, 2),
+(149, 12345678, 24, 2, 2),
+(150, 12345678, 25, 2, 2),
+(151, 12345678, 26, 2, 2),
+(152, 12345678, 27, 2, 2),
+(153, 12345678, 28, 2, 3),
+(154, 12345678, 29, 2, 4),
+(155, 12345678, 30, 2, 4),
+(156, 12345678, 31, 2, 3),
+(157, 12345678, 32, 2, 4),
+(158, 12345678, 33, 2, 4),
+(159, 12345678, 34, 2, 0),
+(160, 12345678, 35, 2, 0),
+(161, 12345678, 36, 2, 0),
+(162, 12345678, 37, 2, 0),
+(163, 12345678, 38, 2, 0),
+(164, 12345678, 39, 2, 0),
+(165, 12345678, 40, 2, 0),
+(166, 12345678, 44, 2, 2),
+(167, 12345678, 45, 2, 2),
+(168, 12345678, 46, 2, 1),
+(169, 12345678, 41, 2, NULL),
+(170, 12345678, 42, 2, NULL),
+(171, 12345678, 43, 2, NULL),
+(172, 98765432, 1, 1, 0),
+(219, 98765432, 1, 2, 4),
+(220, 98765432, 2, 2, 4),
+(221, 98765432, 3, 2, 4),
+(222, 98765432, 4, 2, 0),
+(223, 98765432, 5, 2, 1),
+(224, 98765432, 6, 2, 0),
+(225, 98765432, 7, 2, 1),
+(226, 98765432, 8, 2, 1),
+(227, 98765432, 9, 2, 1),
+(228, 98765432, 10, 2, 1),
+(229, 98765432, 11, 2, 1),
+(230, 98765432, 12, 2, 1),
+(231, 98765432, 13, 2, 1),
+(232, 98765432, 14, 2, 1),
+(233, 98765432, 15, 2, 1),
+(234, 98765432, 16, 2, 0),
+(235, 98765432, 17, 2, 0),
+(236, 98765432, 18, 2, 0),
+(237, 98765432, 19, 2, 0),
+(238, 98765432, 20, 2, 0),
+(239, 98765432, 21, 2, 0),
+(240, 98765432, 22, 2, 0),
+(241, 98765432, 23, 2, 0),
+(242, 98765432, 24, 2, 0),
+(243, 98765432, 25, 2, 0),
+(244, 98765432, 26, 2, 0),
+(245, 98765432, 27, 2, 0),
+(246, 98765432, 28, 2, 0),
+(247, 98765432, 29, 2, 0),
+(248, 98765432, 30, 2, 0),
+(249, 98765432, 31, 2, 0),
+(250, 98765432, 32, 2, 0),
+(251, 98765432, 33, 2, 0),
+(252, 98765432, 34, 2, 4),
+(253, 98765432, 35, 2, 4),
+(254, 98765432, 36, 2, 0),
+(255, 98765432, 37, 2, 0),
+(256, 98765432, 38, 2, 0),
+(257, 98765432, 39, 2, 0),
+(258, 98765432, 40, 2, 0),
+(259, 98765432, 44, 2, 4),
+(260, 98765432, 45, 2, 3),
+(261, 98765432, 46, 2, 3),
+(262, 98765432, 41, 2, NULL),
+(263, 98765432, 42, 2, NULL),
+(264, 98765432, 43, 2, NULL);
 
 -- --------------------------------------------------------
 

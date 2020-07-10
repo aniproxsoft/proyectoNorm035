@@ -285,6 +285,7 @@ function respuestaNo(status){
 function guardar(){
 	if (status==1) {
 		if (validaPreguntas()) {
+			mostrarLoading();
 			json_res=JSON.stringify(resp_array);
 			console.log(json_res);
 			mandarJson();
@@ -293,15 +294,21 @@ function guardar(){
 			alert("Contesta todas las preguntas");
 		}
 	}else{
+		mostrarLoading();
 		json_res=JSON.stringify(resp_array);
 		console.log(json_res);
 		mandarJson();
+
 	}
 	
 }
 
 
 function mandarJson(){
+
+
+
+
 	window.fetch("../../php/controller/CtrlRespuestas.php?json=" + encodeURIComponent(json_res)
    +"&opcion=3").then(respuesta => {
    if (respuesta.ok){
@@ -346,3 +353,24 @@ function validaPreguntas(){
 		return false;
 	}
 }
+
+function mostrarLoading(){
+
+
+	$('#botonGuardar').remove();
+	$('#boton').append(
+  	"<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>"+
+  	"<span class='sr-only'>Loading...</span>"+
+	"</button>"+
+	"<button style='float: right;' class='btn btn-primary' type='button' disabled>"+
+  	"<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>"+
+  	"Cargando..."+
+	"</button>");
+	
+}
+
+
+
+
+	
+	

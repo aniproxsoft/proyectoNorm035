@@ -197,8 +197,8 @@ function insertaRespuestas(res){
  }
 
  function llenaForm(res){
-  alert (res);
-  //location.href="../../vistas/info_sesion/cerrar_sesion.php";
+
+  location.href="../../vistas/info_sesion/cerrar_sesion.php";
  }
 
 
