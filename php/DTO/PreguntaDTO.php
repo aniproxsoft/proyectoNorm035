@@ -8,6 +8,8 @@ class PreguntaDTO {
 	private $seccion_id;
 	private $pregunta_desc;
     private $nombre_seccion;
+    private $secciones;
+    private $preguntas;
 
 
 	public function __construct()
@@ -20,6 +22,7 @@ class PreguntaDTO {
         $this->pregunta_desc2= array();
         $this->pregunta_desc3= array();
         $this->pregunta_desc4= array();
+        
     }
 
     public function get_preguntas1(){
@@ -57,6 +60,36 @@ class PreguntaDTO {
             
         }
         return $this->pregunta_desc4;
+    }
+
+
+    //Guia de referencia 2
+     public function get_secciones_guia_2(){
+        $consulta= $this->conexion->prepare("CALL sp_get_secciones_guia_2()");
+        $consulta->execute();
+        while($filas=$consulta->fetch()){
+            $this->secciones[]=$filas;
+
+            
+        }
+        
+         return $this->secciones;
+    } 
+
+
+
+    //Preguntas de la guia 2
+    public function get_preguntas_guia_2($opc){
+        
+        $consulta= $this->conexion->prepare("CALL sp_get_preguntas_guia_2(?)");
+        $consulta->bindParam(1,$opc);
+        $consulta->execute();
+        while($filas=$consulta->fetch()){
+            $this->preguntas[]=$filas;
+            
+        }
+        
+        return $this->preguntas;
     }
    
      //Getters and Setters
@@ -96,6 +129,8 @@ class PreguntaDTO {
     {
         return $this->nombre_seccion=$nombre_seccion;
     }
+
+
 
 
 

@@ -17,8 +17,10 @@
         header("Location:../../index.html");
         die();
     }else if(isset($sesion)){
-        if(!$usuario->getStatus()==2){
+
+        if($usuario->getStatus()!=2){
           header("Location:../../vistas/iniciar_sesion/acceso_denegado.php");
+
         }
     }
 

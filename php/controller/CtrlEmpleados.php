@@ -8,6 +8,7 @@ class CtrlEmpleados {
  	private $divisiones=array();
  	private $puestos=array();
  	private $resultadosguia=array();
+ 	private $guiasResultas=array();
 
 	public function __construct(){
 
@@ -197,6 +198,54 @@ class CtrlEmpleados {
 		}
 		
 		return $this->resultadosguia;
+
+	}
+
+	public function getResultadoGuia2($num_empleado){
+ 		try {
+ 			$this->db       = new connectionDB();
+ 			$this->conexion = $this->db->get_connection();
+			$statement = $this->conexion->prepare("CALL sp_get_respuestas_guia_2(?)");
+			$statement->bindParam(1,$num_empleado);
+			$statement->execute();
+
+			while($row=$statement->fetch(PDO::FETCH_ASSOC)){
+      			
+      			$this->resultadosguia[] = $row;
+			}
+			$statement->closeCursor();
+			$statement = null; // obligado para cerrar la conexión
+			$db = null;
+			$conexion=null;
+		}catch(PDOException $e){
+			echo 'Error conectando con la base de datos: ' . $e->getMessage();
+		}
+		
+		return $this->resultadosguia;
+
+	}
+
+	public function getGuiasResueltas($num_empleado){
+ 		try {
+ 			$this->db       = new connectionDB();
+ 			$this->conexion = $this->db->get_connection();
+			$statement = $this->conexion->prepare("CALL sp_get_guias_contestadas(?)");
+			$statement->bindParam(1,$num_empleado);
+			$statement->execute();
+
+			while($row=$statement->fetch(PDO::FETCH_ASSOC)){
+      			
+      			$this->guiasResultas[] = $row;
+			}
+			$statement->closeCursor();
+			$statement = null; // obligado para cerrar la conexión
+			$db = null;
+			$conexion=null;
+		}catch(PDOException $e){
+			echo 'Error conectando con la base de datos: ' . $e->getMessage();
+		}
+		
+		return $this->guiasResultas;
 
 	}
 

@@ -19,6 +19,8 @@ $ctrlEmpleados= new CtrlEmpleados();
 
 $num_empleado=base64_decode(filter_input(INPUT_GET, "num"));
 $empleado=$ctrlEmpleados->getEmpleadoSeleccionado($num_empleado);
+$guiasResueltas=$ctrlEmpleados->getGuiasResueltas($num_empleado);
+
 ?>
 
 <!DOCTYPE doctype html>
@@ -186,10 +188,31 @@ $empleado=$ctrlEmpleados->getEmpleadoSeleccionado($num_empleado);
            <hr>
               <strong>Guias Realizadas</strong>
               <br>
-              <?php echo "
-              <a href='resultados_guia1.php?num=". base64_encode ($empleado[0]['num_empleado'])."' class='form-text' style='color: blue'
-                                     title='Ver el detalle'>Guía 1</a>
-                                    "; ?>
+              <?php
+                $url="";
+                foreach($guiasResueltas as $guia){
+                  switch ($guia['guia_id']) {
+                    case 1:
+                        $url="resultados_guia1.php?num=". base64_encode ($empleado[0]['num_empleado']);
+                      break;
+                    
+                    case 2:
+                      $url="resultados_guia2.php?num=". base64_encode ($empleado[0]['num_empleado']);
+                      break;
+                    case 3:
+                      $url="resultados_guia3.php?num=". base64_encode ($empleado[0]['num_empleado']);
+                    break;
+                  }
+                  
+                    
+                  
+                  echo "<a href='".$url."' class='form-text' style='color: blue'
+                                     title='Ver el detalle'>".$guia['guia_nombre']."</a>";
+                }
+
+              ?>
+
+             
           </div>
         </div>
       </div> <!-- /container -->

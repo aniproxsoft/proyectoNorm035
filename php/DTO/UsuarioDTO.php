@@ -72,7 +72,7 @@ class UsuarioDTO extends EmpleadoDTO{
                                 </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                 <a class="dropdown-item" href="../info_sesion/mi_info.php">Mi info</a>
-                                <a class="dropdown-item" href="../info_sesion/cerrar_sesion">Cerrar Sesión</a>
+                                <a class="dropdown-item" href="../info_sesion/cerrar_sesion.php">Cerrar Sesión</a>
                             
                             </div>
                         
