@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.4
+-- version 4.8.4
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 10-07-2020 a las 19:51:02
--- Versión del servidor: 5.7.19
--- Versión de PHP: 5.6.31
+-- Tiempo de generación: 06-08-2020 a las 04:58:53
+-- Versión del servidor: 5.7.24
+-- Versión de PHP: 7.2.14
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -148,6 +148,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_criterios` ()  BEGIN
     SELECT c.criterio_id,c.criterio_desc,c.criterio_nombre
     FROM criterio c
     WHERE c.guia_id=2
+    ORDER BY c.criterio_id;
+
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_get_criterios_guia3`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_criterios_guia3` ()  BEGIN
+    SELECT c.criterio_id,c.criterio_desc,c.criterio_nombre
+    FROM criterio c
+    WHERE c.guia_id=3
     ORDER BY c.criterio_id;
 
 END$$
@@ -295,6 +304,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_preguntas_guia_2` (`seccion_
     AND p.seccion_id=seccion_num;
 END$$
 
+DROP PROCEDURE IF EXISTS `sp_get_preguntas_guia_3`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_preguntas_guia_3` (`seccion_num` INT(11))  BEGIN
+    SELECT p.pregunta_id,p.seccion_id,
+    p.pregunta_desc
+    FROM pregunta p
+    WHERE p.guia_id=3
+    AND p.seccion_id=seccion_num;
+END$$
+
 DROP PROCEDURE IF EXISTS `sp_get_puestos`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_puestos` ()  BEGIN
     SELECT ur.rol_id,ur.nombre_rol,
@@ -313,6 +331,19 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_respuestas_guia_2` (IN `empl
     AND p.guia_id=r.guia_id
     WHERE r.num_empleado=empleado_num
     AND r.guia_id=2
+    ORDER BY p.pregunta_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_get_respuestas_guia_3`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_respuestas_guia_3` (IN `empleado_num` INT(11))  BEGIN
+    SELECT p.pregunta_id,p.pregunta_desc,
+    (SELECT sp_get_desc_respuesta_guia_3(p.pregunta_id,IFNULL(r.valor_respuesta,5)))as respuesta,
+    r.valor_respuesta
+    FROM respuesta r
+    JOIN pregunta p ON r.pregunta_id=p.pregunta_id 
+    AND p.guia_id=r.guia_id
+    WHERE r.num_empleado=empleado_num
+    AND r.guia_id=3
     ORDER BY p.pregunta_id;
 END$$
 
@@ -369,11 +400,71 @@ DECLARE resultado int UNSIGNED DEFAULT 0;
    END CASE; 
 END$$
 
+DROP PROCEDURE IF EXISTS `sp_get_resultados_guia_3`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_resultados_guia_3` (IN `empleado_num` INT(11), IN `opc` INT(11))  BEGIN
+DECLARE resultado int UNSIGNED DEFAULT 0;
+   CASE opc
+    WHEN 1 THEN
+        SELECT SUM(r.valor_respuesta)as resultado 
+        FROM respuesta r
+        WHERE r.num_empleado = empleado_num and r.guia_id=3 into resultado;
+
+        SELECT 'Calificacion final del cuestionario' as seccion_desc,
+        (SELECT sp_get_calificacion_final_guia3(resultado)) as resultado,
+        resultado as puntaje;
+    WHEN 2 THEN 
+        SELECT DISTINCT (c.categoria_desc) as seccion_desc,(SELECT sp_get_calificacion_categoria_guia3((SELECT SUM(r.valor_respuesta) 
+            FROM respuesta r
+            WHERE (r.num_empleado = empleado_num and r.guia_id=3) AND
+            r.pregunta_id IN (SELECT cl.pregunta_id
+            FROM clasificacion cl
+            WHERE cl.guia_id=3 AND cl.categoria_id=c.categoria_id)),c.categoria_id)) 
+            as resultado,(SELECT SUM(r.valor_respuesta) 
+            FROM respuesta r
+            WHERE (r.num_empleado = empleado_num and r.guia_id=3) AND
+            r.pregunta_id IN (SELECT cl.pregunta_id
+            FROM clasificacion cl
+            WHERE cl.guia_id=3 AND cl.categoria_id=c.categoria_id)) as puntaje
+        FROM categoria c
+        LEFT JOIN clasificacion cla ON cla.categoria_id=c.categoria_id and cla.guia_id=3
+        LEFT JOIN respuesta r ON r.pregunta_id=cla.pregunta_id and r.guia_id=3
+        WHERE c.guia_id=3 AND  r.num_empleado=empleado_num;
+    WHEN 3 THEN
+        SELECT DISTINCT (d.dominio_desc) as seccion_desc,(SELECT sp_get_calificacion_dominio_guia3((SELECT SUM(r.valor_respuesta) 
+            FROM respuesta r
+            WHERE (r.num_empleado = empleado_num and r.guia_id=3) AND
+            r.pregunta_id IN (SELECT cl.pregunta_id
+            FROM clasificacion cl
+            WHERE cl.guia_id=3 AND cl.dominio_id=d.dominio_id)),d.dominio_id)) 
+            as resultado,(SELECT SUM(r.valor_respuesta) 
+            FROM respuesta r
+            WHERE (r.num_empleado = empleado_num and r.guia_id=3) AND
+            r.pregunta_id IN (SELECT cl.pregunta_id
+            FROM clasificacion cl
+            WHERE cl.guia_id=3 AND cl.dominio_id=d.dominio_id)) as puntaje
+            FROM dominio d
+            LEFT JOIN clasificacion cla ON cla.dominio_id=d.dominio_id and cla.guia_id=3
+            LEFT JOIN respuesta r ON r.pregunta_id=cla.pregunta_id and r.guia_id=3
+            WHERE d.guia_id=3 AND  r.num_empleado=empleado_num;
+
+
+
+
+   END CASE; 
+END$$
+
 DROP PROCEDURE IF EXISTS `sp_get_secciones_guia_2`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_secciones_guia_2` ()  BEGIN
     SELECT s.seccion_id,s.nombre_seccion
     from seccion s
     WHERE s.guia_id=2;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_get_secciones_guia_3`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_secciones_guia_3` ()  BEGIN
+    SELECT s.seccion_id,s.nombre_seccion
+    from seccion s
+    WHERE s.guia_id=3;
 END$$
 
 DROP PROCEDURE IF EXISTS `sp_insert_empleado`$$
@@ -521,6 +612,77 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_respuestas_guia_2` (IN `j
             COMMIT;
             Select respuesta_id, num_empleado, pregunta_id, valor_respuesta,msj, countInsert
             from respuesta WHERE guia_id=2 AND num_empleado=empleado_num ;
+           End$$
+
+DROP PROCEDURE IF EXISTS `sp_insert_respuestas_guia_3`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_respuestas_guia_3` (IN `jsonRespuestas` VARCHAR(65000))  BEGIN
+    DECLARE flag boolean;
+    DECLARE count int  UNSIGNED DEFAULT 0;
+    DECLARE msj varchar(50);
+    DECLARE resp_valor int UNSIGNED DEFAULT 0;
+    DECLARE countInsert int UNSIGNED DEFAULT 0;
+    DECLARE json_items int UNSIGNED   DEFAULT  JSON_LENGTH(jsonRespuestas); 
+    DECLARE _index int UNSIGNED DEFAULT 0;
+    DECLARE _index2 int UNSIGNED DEFAULT 65;
+
+    DECLARE respuesta varchar (800);
+    DECLARE id_pregunta int UNSIGNED DEFAULT 0;
+    DECLARE empleado_num int UNSIGNED DEFAULT 0;
+    
+        SELECT replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,'].usuario')), '"', '') 
+        into empleado_num;
+                        WHILE _index < json_items DO 
+                            Select replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,']. resp')), '"', '') 
+                            into respuesta;
+                            Select replace(JSON_EXTRACT(jsonRespuestas, CONCAT('$[',_index,'].pregunta_id')), '"', '') 
+                            into id_pregunta;
+                            SELECT sp_get_valor_respuesta_guia3(id_pregunta,respuesta) into resp_valor;
+                            
+                            Insert into respuesta (num_empleado,pregunta_id, valor_respuesta,guia_id)
+                          
+                            VALUES(
+                                empleado_num,
+                                id_pregunta,
+                                resp_valor,
+                                3
+                                
+                            );
+
+                            
+                            SET COUNT = (select ROW_count());
+                            if(COUNT>0)then
+                                Set countInsert:=countInsert+1;
+                                set msj='Se registraron correctamente las respuestas';
+                            else set msj='no se inserto prro';
+                            end if;
+                        
+                
+                            SET _index := _index + 1; 
+                
+ 
+                        END WHILE; 
+                        WHILE _index2 < 73 DO
+                            IF(sp_get_exists_pregunta_guia_3(_index2,empleado_num)=FALSE)THEN
+                                Insert into respuesta (num_empleado,pregunta_id, valor_respuesta,guia_id)
+                          
+                                VALUES(
+                                    empleado_num,
+                                    _index2,
+                                    NULL,
+                                    3
+                                
+                                );
+                            END IF;
+
+                            SET _index2 := _index2 + 1; 
+                        END WHILE; 
+
+
+
+
+            COMMIT;
+            Select respuesta_id, num_empleado, pregunta_id, valor_respuesta,msj, countInsert
+            from respuesta WHERE guia_id=3 AND num_empleado=empleado_num ;
            End$$
 
 DROP PROCEDURE IF EXISTS `sp_update_num_empleado`$$
@@ -766,6 +928,81 @@ DECLARE resultado varchar(500);
 
 END$$
 
+DROP FUNCTION IF EXISTS `sp_get_calificacion_categoria_guia3`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_calificacion_categoria_guia3` (`total` INT(11), `id_categoria` INT(11)) RETURNS VARCHAR(500) CHARSET latin1 BEGIN
+DECLARE resultado varchar(500);
+
+    CASE id_categoria
+    WHEN 1 THEN
+        CASE
+        WHEN total <5 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=5 and total <9 THEN
+            set resultado='Bajo';
+        WHEN total>=9 and total<11 THEN
+            set resultado='Medio';
+        WHEN total >=11 and total<14 THEN
+            set resultado='Alto';
+        WHEN total >=14 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 2 THEN
+        CASE
+        WHEN total <15 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=15 and total <30 THEN
+            set resultado='Bajo';
+        WHEN total>=30 and total<45 THEN
+            set resultado='Medio';
+        WHEN total >=45 and total<60 THEN
+            set resultado='Alto';
+        WHEN total >=60 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 3 THEN
+        CASE
+        WHEN total <5 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=5 and total <7 THEN
+            set resultado='Bajo';
+        WHEN total>=7 and total<10 THEN
+            set resultado='Medio';
+        WHEN total >=10 and total<13 THEN
+            set resultado='Alto';
+        WHEN total >=13 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 4 THEN
+        CASE
+        WHEN total <14 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=14 and total <29 THEN
+            set resultado='Bajo';
+        WHEN total>=29 and total<42 THEN
+            set resultado='Medio';
+        WHEN total >=42 and total<58 THEN
+            set resultado='Alto';
+        WHEN total >=58 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 5 THEN
+        CASE
+        WHEN total <10 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=10 and total <14 THEN
+            set resultado='Bajo';
+        WHEN total>=14 and total<18 THEN
+            set resultado='Medio';
+        WHEN total >=18 and total<23 THEN
+            set resultado='Alto';
+        WHEN total >=23 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    END CASE;
+    RETURN resultado;
+
+END$$
+
 DROP FUNCTION IF EXISTS `sp_get_calificacion_dominio`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_calificacion_dominio` (`total` INT(11), `id_dominio` INT(11)) RETURNS VARCHAR(500) CHARSET latin1 BEGIN
 DECLARE resultado varchar(500);
@@ -778,6 +1015,7 @@ DECLARE resultado varchar(500);
         WHEN total >=3 and total <5 THEN
             set resultado='Bajo';
         WHEN total>=5 and total<7 THEN
+
             set resultado='Medio';
         WHEN total >=7 and total<9 THEN
             set resultado='Alto';
@@ -881,6 +1119,147 @@ DECLARE resultado varchar(500);
 
 END$$
 
+DROP FUNCTION IF EXISTS `sp_get_calificacion_dominio_guia3`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_calificacion_dominio_guia3` (`total` INT(11), `id_dominio` INT(11)) RETURNS VARCHAR(500) CHARSET latin1 BEGIN
+DECLARE resultado varchar(500);
+
+    CASE id_dominio
+    WHEN 1 THEN
+        CASE
+        WHEN total <5 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=5 and total <9 THEN
+            set resultado='Bajo';
+        WHEN total>=9 and total<11 THEN
+
+            set resultado='Medio';
+        WHEN total >=11 and total<14 THEN
+            set resultado='Alto';
+        WHEN total >=14 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 2 THEN
+        CASE
+        WHEN total <15 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=15 and total <21 THEN
+            set resultado='Bajo';
+        WHEN total>=21 and total<27 THEN
+            set resultado='Medio';
+        WHEN total >=27 and total<37 THEN
+            set resultado='Alto';
+        WHEN total >=37 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 3 THEN
+        CASE
+        WHEN total <11 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=11 and total <16 THEN
+            set resultado='Bajo';
+        WHEN total>=16 and total<21 THEN
+            set resultado='Medio';
+        WHEN total >=21 and total<25 THEN
+            set resultado='Alto';
+        WHEN total >=25 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 4 THEN
+        CASE
+        WHEN total <1 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=1 and total <2 THEN
+            set resultado='Bajo';
+        WHEN total>=2 and total<4 THEN
+            set resultado='Medio';
+        WHEN total >=4 and total<6 THEN
+            set resultado='Alto';
+        WHEN total >=6 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 5 THEN
+        CASE
+        WHEN total <4 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=4 and total <6 THEN
+            set resultado='Bajo';
+        WHEN total>=6 and total<8 THEN
+            set resultado='Medio';
+        WHEN total >=8 and total<10 THEN
+            set resultado='Alto';
+        WHEN total >=10 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 6 THEN
+        CASE
+        WHEN total <9 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=9 and total <12 THEN
+            set resultado='Bajo';
+        WHEN total>=12 and total<16 THEN
+            set resultado='Medio';
+        WHEN total >=16 and total<20 THEN
+            set resultado='Alto';
+        WHEN total >=20 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 7 THEN
+        CASE
+        WHEN total <10 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=10 and total <13 THEN
+            set resultado='Bajo';
+        WHEN total>=13 and total<17 THEN
+            set resultado='Medio';
+        WHEN total >=17 and total<21 THEN
+            set resultado='Alto';
+        WHEN total >=21 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 8 THEN
+        CASE
+        WHEN total <7 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=7 and total <10 THEN
+            set resultado='Bajo';
+        WHEN total>=10 and total<13 THEN
+            set resultado='Medio';
+        WHEN total >=13 and total<16 THEN
+            set resultado='Alto';
+        WHEN total >=16 THEN
+            set resultado='Muy Alto';
+        END CASE;        
+    WHEN 9 THEN
+        CASE
+        WHEN total <6 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=6 and total <10 THEN
+            set resultado='Bajo';
+        WHEN total>=10 and total<14 THEN
+            set resultado='Medio';
+        WHEN total >=14 and total<18 THEN
+            set resultado='Alto';
+        WHEN total >=18 THEN
+            set resultado='Muy Alto';
+        END CASE;
+    WHEN 10 THEN
+        CASE
+        WHEN total <4 THEN
+            set resultado='Nulo o despreciable';
+        WHEN total >=4 and total <6 THEN
+            set resultado='Bajo';
+        WHEN total>=6 and total<8 THEN
+            set resultado='Medio';
+        WHEN total >=8 and total<10 THEN
+            set resultado='Alto';
+        WHEN total >=10 THEN
+            set resultado='Muy Alto';
+        END CASE;                    
+    END CASE;
+    RETURN resultado;
+
+END$$
+
 DROP FUNCTION IF EXISTS `sp_get_calificacion_final`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_calificacion_final` (`total` INT(11)) RETURNS VARCHAR(500) CHARSET latin1 BEGIN
 DECLARE resultado varchar(500);
@@ -901,13 +1280,83 @@ DECLARE resultado varchar(500);
 
 END$$
 
+DROP FUNCTION IF EXISTS `sp_get_calificacion_final_guia3`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_calificacion_final_guia3` (`total` INT(11)) RETURNS VARCHAR(500) CHARSET latin1 BEGIN
+DECLARE resultado varchar(500);
+    CASE
+    WHEN total <50 THEN
+        set resultado='Nulo o despreciable';
+    WHEN total >=50 and total <75 THEN
+        set resultado='Bajo';
+    WHEN total>=75 and total<99 THEN
+        set resultado='Medio';
+    WHEN total >=99 and total<140 THEN
+        set resultado='Alto';
+    WHEN total >=140 THEN
+        set resultado='Muy Alto';
+    END CASE;
+    
+    RETURN resultado;
+
+END$$
+
 DROP FUNCTION IF EXISTS `sp_get_desc_respuesta_guia_2`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_desc_respuesta_guia_2` (`id_pregunta` INT(11), `valor` INT(11)) RETURNS VARCHAR(500) CHARSET latin1 BEGIN
  DECLARE respuesta varchar(500);
  DECLARE forma_evaluar int UNSIGNED DEFAULT 0;   
     SELECT vp.forma_evaluar_id
     from valores_opciones vp
-    where vp.pregunta_id= id_pregunta into forma_evaluar;
+    where vp.pregunta_id= id_pregunta 
+    and vp.guia_id=2 into forma_evaluar;
+
+    IF(forma_evaluar=1)THEN
+        CASE valor 
+            WHEN 4 THEN
+                set respuesta='NUNCA';
+            WHEN 3 THEN
+                set respuesta='CASI NUNCA';
+            WHEN 2 THEN
+                set respuesta='ALGUNAS VECES';
+            WHEN 1 THEN
+                set respuesta='CASI SIEMPRE';
+            WHEN 0 THEN
+                set respuesta='SIEMPRE';
+            ELSE
+                set respuesta=' - ';
+        END CASE;
+
+    ELSE IF(forma_evaluar=2)THEN
+        CASE valor 
+            WHEN 0 THEN
+                set respuesta='NUNCA';
+            WHEN 1 THEN
+                set respuesta='CASI NUNCA';
+            WHEN 2 THEN
+                set respuesta='ALGUNAS VECES';
+            WHEN 3 THEN
+                set respuesta='CASI SIEMPRE';
+            WHEN 4 THEN
+                set respuesta='SIEMPRE';
+            ELSE
+             set respuesta=' - ';
+        END CASE;
+        END IF;
+    END IF;
+    
+
+    
+    RETURN respuesta;
+
+END$$
+
+DROP FUNCTION IF EXISTS `sp_get_desc_respuesta_guia_3`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_desc_respuesta_guia_3` (`id_pregunta` INT(11), `valor` INT(11)) RETURNS VARCHAR(500) CHARSET latin1 BEGIN
+ DECLARE respuesta varchar(500);
+ DECLARE forma_evaluar int UNSIGNED DEFAULT 0;   
+    SELECT vp.forma_evaluar_id
+    from valores_opciones vp
+    where vp.pregunta_id= id_pregunta 
+    and vp.guia_id=3 into forma_evaluar;
 
     IF(forma_evaluar=1)THEN
         CASE valor 
@@ -968,13 +1417,81 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_exists_pregunta_guia_2` (`id_
 
 END$$
 
+DROP FUNCTION IF EXISTS `sp_get_exists_pregunta_guia_3`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_exists_pregunta_guia_3` (`id_pregunta` INT(11), `empleado_num` INT(11)) RETURNS TINYINT(1) BEGIN
+ DECLARE respuesta boolean;
+ DECLARE id_encontrado int(11);   
+    SELECT r.pregunta_id
+    FROM respuesta r
+    WHERE pregunta_id =id_pregunta
+    and r.num_empleado=empleado_num
+    and r.guia_id=3 into id_encontrado;
+    IF(id_encontrado is null)THEN
+        set respuesta=false;
+    ELSE
+        set respuesta=true;
+    END IF;
+
+    RETURN respuesta;
+
+END$$
+
 DROP FUNCTION IF EXISTS `sp_get_valor_respuesta`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_valor_respuesta` (`id_pregunta` INT(11), `respuesta` VARCHAR(200)) RETURNS INT(11) BEGIN
 DECLARE forma_evaluar int UNSIGNED DEFAULT 0;
 DECLARE valor int UNSIGNED DEFAULT 0;
     SELECT vp.forma_evaluar_id
     from valores_opciones vp
-    where vp.pregunta_id= id_pregunta into forma_evaluar;
+    where vp.pregunta_id= id_pregunta and vp.guia_id=2 into forma_evaluar;
+
+    IF(forma_evaluar=1)THEN
+        CASE respuesta 
+            WHEN 'NUNCA' THEN
+                set valor=4;
+            WHEN 'CASI NUNCA' THEN
+                set valor=3;
+            WHEN 'ALGUNAS VECES' THEN
+                set valor=2;
+            WHEN 'CASI SIEMPRE' THEN
+                set valor=1;
+            WHEN 'SIEMPRE' THEN
+                set valor=0;
+            ELSE
+            set valor=null;
+
+
+        END CASE;
+
+    ELSE IF(forma_evaluar=2)THEN
+        CASE respuesta 
+            WHEN 'NUNCA' THEN
+                set valor=0;
+            WHEN 'CASI NUNCA' THEN
+                set valor=1;
+            WHEN 'ALGUNAS VECES' THEN
+                set valor=2;
+            WHEN 'CASI SIEMPRE' THEN
+                set valor=3;
+            WHEN 'SIEMPRE' THEN
+                set valor=4;
+            ELSE
+                set valor=null;
+        END CASE;
+        END IF;
+    END IF;
+    
+    
+    RETURN valor;
+
+END$$
+
+DROP FUNCTION IF EXISTS `sp_get_valor_respuesta_guia3`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_valor_respuesta_guia3` (`id_pregunta` INT(11), `respuesta` VARCHAR(200)) RETURNS INT(11) BEGIN
+DECLARE forma_evaluar int UNSIGNED DEFAULT 0;
+DECLARE valor int UNSIGNED DEFAULT 0;
+    SELECT vp.forma_evaluar_id
+    from valores_opciones vp
+    where vp.pregunta_id= id_pregunta and vp.guia_id=3 into forma_evaluar;
 
     IF(forma_evaluar=1)THEN
         CASE respuesta 
@@ -1031,7 +1548,7 @@ CREATE TABLE IF NOT EXISTS `categoria` (
   `guia_id` int(11) NOT NULL,
   `categoria_desc` varchar(1000) NOT NULL,
   PRIMARY KEY (`categoria_id`,`guia_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `categoria`
@@ -1039,9 +1556,14 @@ CREATE TABLE IF NOT EXISTS `categoria` (
 
 INSERT INTO `categoria` (`categoria_id`, `guia_id`, `categoria_desc`) VALUES
 (1, 2, 'Ambiente de trabajo'),
+(1, 3, 'Ambiente de trabajo'),
 (2, 2, 'Factores propios de le actividad'),
+(2, 3, 'Factores propios de la actividad'),
 (3, 2, 'Organización del tiempo de trabajo'),
-(4, 2, 'Liderazgo y relaciones en el trabajo');
+(3, 3, 'Organozación del tiempo de trabajo'),
+(4, 2, 'Liderazgo y relaciones en el trabajo'),
+(4, 3, 'Liderazgo y relaciones en el trabajo'),
+(5, 3, 'Entorno organizacional');
 
 -- --------------------------------------------------------
 
@@ -1060,7 +1582,7 @@ CREATE TABLE IF NOT EXISTS `clasificacion` (
   KEY `fk_categoria_clasi` (`categoria_id`),
   KEY `fk_dominio_clasi` (`dominio_id`),
   KEY `fk_dimension_clasi` (`dimension_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `clasificacion`
@@ -1068,51 +1590,123 @@ CREATE TABLE IF NOT EXISTS `clasificacion` (
 
 INSERT INTO `clasificacion` (`pregunta_id`, `guia_id`, `categoria_id`, `dominio_id`, `dimension_id`) VALUES
 (1, 2, 1, 1, 2),
+(1, 3, 1, 1, 1),
 (2, 2, 1, 1, 1),
+(2, 3, 1, 1, 2),
 (3, 2, 1, 1, 3),
+(3, 3, 1, 1, 1),
 (4, 2, 2, 2, 4),
+(4, 3, 1, 1, 2),
 (5, 2, 2, 2, 5),
+(5, 3, 1, 1, 3),
 (6, 2, 2, 2, 5),
+(6, 3, 2, 2, 4),
 (7, 2, 2, 2, 6),
+(7, 3, 2, 2, 5),
 (8, 2, 2, 2, 6),
+(8, 3, 2, 2, 5),
 (9, 2, 2, 2, 4),
+(9, 3, 2, 2, 6),
 (10, 2, 2, 2, 8),
+(10, 3, 2, 2, 6),
 (11, 2, 2, 2, 8),
+(11, 3, 2, 2, 6),
 (12, 2, 2, 2, 9),
+(12, 3, 2, 2, 4),
 (13, 2, 2, 2, 9),
+(13, 3, 2, 2, 8),
 (14, 2, 3, 4, 13),
+(14, 3, 2, 2, 8),
 (15, 2, 3, 4, 13),
+(15, 3, 2, 2, 9),
 (16, 2, 3, 5, 14),
+(16, 3, 2, 2, 9),
 (17, 2, 3, 5, 15),
+(17, 3, 3, 4, 14),
 (18, 2, 2, 3, 11),
+(18, 3, 3, 4, 14),
 (19, 2, 2, 3, 11),
+(19, 3, 3, 5, 15),
 (20, 2, 2, 3, 10),
+(20, 3, 3, 5, 15),
 (21, 2, 2, 3, 10),
+(21, 3, 3, 5, 16),
 (22, 2, 2, 3, 10),
+(22, 3, 3, 5, 16),
 (23, 2, 4, 6, 16),
+(23, 3, 2, 3, 11),
 (24, 2, 4, 6, 16),
+(24, 3, 2, 3, 11),
 (25, 2, 4, 6, 16),
+(25, 3, 2, 3, 10),
 (26, 2, 2, 3, 12),
+(26, 3, 2, 3, 10),
 (27, 2, 2, 3, 12),
+(27, 3, 2, 3, 10),
 (28, 2, 4, 6, 17),
+(28, 3, 2, 3, 10),
 (29, 2, 4, 6, 17),
+(29, 3, 2, 3, 12),
 (30, 2, 4, 7, 18),
+(30, 3, 2, 3, 12),
 (31, 2, 4, 7, 18),
+(31, 3, 4, 6, 17),
 (32, 2, 4, 7, 18),
+(32, 3, 4, 6, 17),
 (33, 2, 4, 8, 20),
+(33, 3, 4, 6, 17),
 (34, 2, 4, 8, 20),
+(34, 3, 4, 6, 17),
 (35, 2, 4, 8, 20),
+(35, 3, 2, 3, 13),
 (36, 2, 4, 8, 20),
+(36, 3, 2, 3, 13),
 (37, 2, 4, 8, 20),
+(37, 3, 4, 6, 18),
 (38, 2, 4, 8, 20),
+(38, 3, 4, 6, 18),
 (39, 2, 4, 8, 20),
+(39, 3, 4, 6, 18),
 (40, 2, 4, 8, 20),
+(40, 3, 4, 6, 18),
 (41, 2, 2, 2, 7),
+(41, 3, 4, 6, 18),
 (42, 2, 2, 2, 7),
+(42, 3, 4, 7, 19),
 (43, 2, 2, 2, 7),
+(43, 3, 4, 7, 19),
 (44, 2, 4, 7, 19),
+(44, 3, 4, 7, 19),
 (45, 2, 4, 7, 19),
-(46, 2, 4, 7, 19);
+(45, 3, 4, 7, 19),
+(46, 2, 4, 7, 19),
+(46, 3, 4, 7, 19),
+(47, 3, 5, 9, 22),
+(48, 3, 5, 9, 22),
+(49, 3, 5, 9, 23),
+(50, 3, 5, 9, 23),
+(51, 3, 5, 9, 23),
+(52, 3, 5, 9, 23),
+(53, 3, 5, 10, 25),
+(54, 3, 5, 10, 25),
+(55, 3, 5, 10, 24),
+(56, 3, 5, 10, 24),
+(57, 3, 4, 8, 21),
+(58, 3, 4, 8, 21),
+(59, 3, 4, 8, 21),
+(60, 3, 4, 8, 21),
+(61, 3, 4, 8, 21),
+(62, 3, 4, 8, 21),
+(63, 3, 4, 8, 21),
+(64, 3, 4, 8, 21),
+(65, 3, 2, 2, 7),
+(66, 3, 2, 2, 7),
+(67, 3, 2, 2, 7),
+(68, 3, 2, 2, 7),
+(69, 3, 4, 7, 20),
+(70, 3, 4, 7, 20),
+(71, 3, 4, 7, 20),
+(72, 3, 4, 7, 20);
 
 -- --------------------------------------------------------
 
@@ -1136,10 +1730,15 @@ CREATE TABLE IF NOT EXISTS `criterio` (
 
 INSERT INTO `criterio` (`criterio_id`, `guia_id`, `criterio_nombre`, `criterio_desc`) VALUES
 (1, 2, 'Muy Alto', 'Se requiere realizar el análisis de cada categoría y dominio para establecer las acciones de intervención apropiadas. mediante un programa de intervención que deberá incluir evaluaciones especificas1, y contemplar campañas de sensibilización, revisar la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial, la promoción de un entorno organizacional favorable y la prevención de la violencia laboral así como reforzar su aplicación y difusión.'),
+(1, 3, 'Muy Alto', 'Se requiere realizar el análisis de cada categoría y dominio para establecer las acciones de intervención apropiadas. mediante un programa de intervención que deberá incluir evaluaciones especificas1, y contemplar campañas de sensibilización, revisar la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial, la promoción de un entorno organizacional favorable y la prevención de la violencia laboral así como reforzar su aplicación y difusión.'),
 (2, 2, 'Alto', 'Se requiere realizar un análisis de cada categoría y dominio, de manera que se puedan determinar las acciones de intervención apropiadas a través de un Programa de intervención, que podrá incluir una evaluación especifica1 y deberá incluir una campaña de sensibilización, revisar la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial, la promoción de un entorno organizacional favorable y la prevención de la violencia laboral, así como reforzar su aplicación y difusión.'),
+(2, 3, 'Alto', 'Se requiere realizar un análisis de cada categoría y dominio, de manera que se puedan determinar las acciones de intervención apropiadas a través de un Programa de intervención, que podrá incluir una evaluación especifica1 y deberá incluir una campaña de sensibilización, revisar la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial, la promoción de un entorno organizacional favorable y la prevención de la violencia laboral, así como reforzar su aplicación y difusión.'),
 (3, 2, 'Medio', 'Se requiere revisar la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial, la promoción de un entorno organizacional favorable y la prevención de la violencia laboral, así como reforzar su aplicación y difusión, mediante un Programa de intervención.'),
+(3, 3, 'Medio', 'Se requiere revisar la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial, la promoción de un entorno organizacional favorable y la prevención de la violencia laboral, así como reforzar su aplicación y difusión, mediante un Programa de intervención.'),
 (4, 2, 'Bajo', 'Se requiere revisar la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial. la promoción de un entorno organizacional favorable y la prevención de la violencia laboral. así corno reforzar su aplicación y difusión, mediante un Programa de intervención. Es necesario una mayor difusión de la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial, la promoción de un entorno organizacional favorable y la prevención de la violencia laboral.'),
-(5, 2, 'Nulo o despreciable', 'El riesgo resulta despreciable por lo que no se requiere medidas adicionales.');
+(4, 3, 'Bajo', 'Se requiere revisar la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial. la promoción de un entorno organizacional favorable y la prevención de la violencia laboral. así corno reforzar su aplicación y difusión, mediante un Programa de intervención. Es necesario una mayor difusión de la política de prevención de riesgos psicosociales y programas para la prevención de los factores de riesgo psicosocial, la promoción de un entorno organizacional favorable y la prevención de la violencia laboral.'),
+(5, 2, 'Nulo o despreciable', 'El riesgo resulta despreciable por lo que no se requiere medidas adicionales.'),
+(5, 3, 'Nulo o despreciable', 'El riesgo resulta despreciable por lo que no se requiere medidas adicionales.');
 
 -- --------------------------------------------------------
 
@@ -1153,7 +1752,7 @@ CREATE TABLE IF NOT EXISTS `dimension` (
   `guia_id` int(11) NOT NULL,
   `dimension_desc` varchar(1000) NOT NULL,
   PRIMARY KEY (`dimension_id`,`guia_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `dimension`
@@ -1161,25 +1760,50 @@ CREATE TABLE IF NOT EXISTS `dimension` (
 
 INSERT INTO `dimension` (`dimension_id`, `guia_id`, `dimension_desc`) VALUES
 (1, 2, 'Condiciones peligrosas e inseguras '),
+(1, 3, 'Condiciones peligrosas e inseguras '),
 (2, 2, 'Condiciones deficientes e insalubres '),
+(2, 3, 'Condiciones deficientes e insalubres '),
 (3, 2, 'Trabajos peligrosos '),
+(3, 3, 'Trabajos peligrosos '),
 (4, 2, 'Cargas cuantitativas'),
+(4, 3, 'Cargas cuantitativas'),
 (5, 2, 'Ritmos de trabajo acelerado'),
+(5, 3, 'Ritmos de trabajo acelerado'),
 (6, 2, 'Carga mental'),
+(6, 3, 'Carga mental'),
 (7, 2, 'Cargas psicológicas emocionales'),
+(7, 3, 'Cargas psicológicas emocionales'),
 (8, 2, 'Cargas de alta responsabilidad'),
+(8, 3, 'Cargas de alta responsabilidad'),
 (9, 2, '\r\nCargas contradictorias o Inconsistentes'),
+(9, 3, 'Cargas contradictorias o inconsistentes'),
 (10, 2, 'Falta de control y autonomía sobre el trabajo'),
+(10, 3, 'Falta de control y autonomía sobre el trabajo'),
 (11, 2, 'Limitada o nula posibilidad do desarrollo'),
+(11, 3, 'Limitada o nula posibilidad do desarrollo'),
 (12, 2, 'Limitada o inexistente capacitación'),
+(12, 3, 'Insuficiente participación y manejo de cambio'),
 (13, 2, 'Jornadas de trabajo extensas'),
+(13, 3, 'Limitada o inexistente capacitación'),
 (14, 2, 'Influencia del trabajo fuera del centro laboral'),
+(14, 3, 'Jornadas de trabajo extensas'),
 (15, 2, 'Influencia de las responsabilidades familiares'),
+(15, 3, 'Influencia del trabajo fuera del centro laboral'),
 (16, 2, 'Escasa claridad de funciones'),
+(16, 3, 'Influencia de las responsabilidades familiares'),
 (17, 2, 'Características del liderazgo'),
+(17, 3, 'Escasa claridad de funciones'),
 (18, 2, 'Relaciones sociales en el trabajo'),
+(18, 3, 'Características del liderazgo'),
 (19, 2, 'Deficiente relación con los colaboradores que supervisa'),
-(20, 2, 'Violencia laboral');
+(19, 3, 'Relaciones sociales en el trabajo'),
+(20, 2, 'Violencia laboral'),
+(20, 3, 'Deficiente relación con los colaboradores que supervisa'),
+(21, 3, 'Violencia laboral'),
+(22, 3, 'Escasa o nula retoalimentación del desempeño'),
+(23, 3, 'Escaso o nulo reconocimiento y compensación'),
+(24, 3, 'Limitado sentido de pertemencia'),
+(25, 3, 'Inestabilidad laboral');
 
 -- --------------------------------------------------------
 
@@ -1218,7 +1842,7 @@ CREATE TABLE IF NOT EXISTS `dominio` (
   `guia_id` int(11) NOT NULL,
   `dominio_desc` varchar(1000) NOT NULL,
   PRIMARY KEY (`dominio_id`,`guia_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `dominio`
@@ -1226,13 +1850,23 @@ CREATE TABLE IF NOT EXISTS `dominio` (
 
 INSERT INTO `dominio` (`dominio_id`, `guia_id`, `dominio_desc`) VALUES
 (1, 2, 'Condiciones en el ambiente de trabajo'),
+(1, 3, 'Condiciones en el ambiente de trabajo'),
 (2, 2, 'Carga de trabajo'),
+(2, 3, 'Carga de trabajo'),
 (3, 2, 'Falta da control sobre el trabajo'),
-(4, 2, 'Jornada do trabajo'),
+(3, 3, 'Falta da control sobre el trabajo'),
+(4, 2, 'Jornada de trabajo'),
+(4, 3, 'Jornada de trabajo'),
 (5, 2, 'Interferencia en la relación trabajo-familia'),
+(5, 3, 'Interferencia en la relación trabajo-familia'),
 (6, 2, 'Liderazgo'),
+(6, 3, 'Liderazgo'),
 (7, 2, 'Relaciones en el trabajo'),
-(8, 2, 'Violencia');
+(7, 3, 'Relaciones en el trabajo\r\n'),
+(8, 2, 'Violencia'),
+(8, 3, 'Violencia'),
+(9, 3, 'Reconocimiento del desempeño'),
+(10, 3, 'Insuficiente sentido de pertenencia e inestabilidad ');
 
 -- --------------------------------------------------------
 
@@ -1268,12 +1902,13 @@ CREATE TABLE IF NOT EXISTS `empleado` (
 
 INSERT INTO `empleado` (`num_empleado`, `nombre_empleado`, `apellidos`, `edad`, `sexo`, `nivel_estudios_id`, `status_estudios`, `division_id`, `usuario_id`, `rol_id`, `antiguedad_puesto`, `fecha_antiguedad`, `status`) VALUES
 (123456, 'Luis Manuel', 'Fernandez Hernandez', 55, 'M', 7, '1', 2, 1, 1, '1986-09-01', NULL, '1'),
+(260197, 'Nancy', 'Cabrera', 45, 'F', 8, '1', 2, NULL, 2, '2010-08-04', '2009-08-05', '3'),
 (654321, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
 (11223344, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2'),
-(12345678, 'Gerardo', 'Pluma Bautista', 56, 'M', 6, '1', 2, NULL, 2, '2009-04-02', '2009-04-02', '3'),
+(12345678, 'Gerardo', 'Pluma Bautista', 56, 'M', 7, '1', 2, NULL, 2, '2010-08-05', '2010-08-05', '3'),
 (12345679, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
-(12345688, 'María de los Santos', 'Mexica Rivera', 56, 'F', 7, '1', 2, NULL, 2, '2007-04-05', '2007-04-05', '3'),
-(22334455, 'Gilberto', 'Pacheco Gallegos', 43, 'M', 7, '1', 2, NULL, 2, '2003-05-02', '2001-04-01', '3'),
+(12345688, 'María de los Santos', 'Mexica Rivera', 56, 'F', 7, '1', 2, NULL, 2, '2007-04-05', '2007-04-05', '2'),
+(22334455, 'Gilberto', 'Pacheco Gallegos', 43, 'M', 7, '1', 2, NULL, 2, '2010-08-06', '2010-08-07', '3'),
 (87654321, 'Enrrique', 'Perez Sulivan', 67, 'M', 2, '1', 1, NULL, 2, '2020-06-03', '2020-06-01', '0'),
 (98765432, 'Luisa ', 'Puebla', 34, 'F', 6, '1', 2, NULL, 2, '2012-02-02', '2012-02-02', '3');
 
@@ -1364,7 +1999,7 @@ CREATE TABLE IF NOT EXISTS `pregunta` (
   PRIMARY KEY (`pregunta_id`,`guia_id`) USING BTREE,
   KEY `FK_seccion` (`seccion_id`),
   KEY `guia_id` (`guia_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `pregunta`
@@ -1373,65 +2008,137 @@ CREATE TABLE IF NOT EXISTS `pregunta` (
 INSERT INTO `pregunta` (`pregunta_id`, `guia_id`, `seccion_id`, `pregunta_desc`) VALUES
 (1, 1, 1, '¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como las siguientes:   \r\n¿Accidente que tenga como consecuencia la muerte, la pérdida de un miembro o una lesión grave?                    \r\n¿Asaltos?\r\n¿Actos Violentos que derivaron en lesiones graves? \r\n¿Secuestros?    \r\n¿Amenazas?, o Cualquier otro que ponga en riesgo su vida o salud, y/o la de otras personas?'),
 (1, 2, 1, 'Mi trabajo me exige hacer mucho esfuerzo físico.'),
+(1, 3, 1, 'El espacio donde trabajo me permite realizar mis actividades de manera segura e higiénica'),
 (2, 1, 2, '¿Ha tenido recuedos recurrentes sobre el acontecimiento que le provocan malestares?\r\n'),
 (2, 2, 1, 'Me preocupa sufrir un accidente en mi trabajo'),
+(2, 3, 1, 'Mi trabajo me exige hacer mucho esfuerzo físico'),
 (3, 1, 2, '¿Ha tenido sueños de carácter recurrente sobre el acontecimiento, que le producen malestar?'),
 (3, 2, 1, 'Considero que las actividades que realizo son peligrosas.'),
+(3, 3, 1, 'Me preocupa sufrir un accidente en mi trabajo'),
 (4, 1, 3, '¿Se ha esforzado por evitar todo tipo de sentimientos, conversaciones o situaciones que le puedan recordar el acontecimiento?'),
 (4, 2, 1, 'Por la cantidad de trabajo que tongo debo quedarme tiempo adicional a mi turno.'),
+(4, 3, 1, 'Considero que en mi trabajo se aplican las normas de seguridad y salud en el trabajo'),
 (5, 1, 3, '¿Se ha esforzado por evitar todo tipo de actividades, lugares o personas que motivan recuerdos del acontecimientos?'),
 (5, 2, 1, 'Por le cantidad de trabajo que tongo debo trabajar sin parar'),
+(5, 3, 1, 'Considero que las actividades que realizo son peligrosas'),
 (6, 1, 3, '¿Ha tenido dificultad para recordar alguna parte importante el evento?'),
 (6, 2, 1, 'Considero que es necesario mantener un ritmo de trabajo acelerado.'),
+(6, 3, 2, 'Por la cantidad de trabajo que tengo debo quedarme tiempo adicional a mi turno'),
 (7, 1, 3, '¿Ha disminuido su interés en sus actividades cotidianas?'),
 (7, 2, 1, 'Mi trabajo exige que este muy concentrado.'),
+(7, 3, 2, 'Por la cantidad de trabajo que tengo debo trabajar sin parar'),
 (8, 1, 3, '¿Se ha sentido usted alejado o distante de los demás?'),
 (8, 2, 1, 'Mi trabajo requiere que memorice mucha información.'),
+(8, 3, 2, 'Considero que es necesario mantener un ritmo de trabajo acelerado'),
 (9, 1, 3, '¿Ha notado que tiene dificultad para expresar sus sentimientos?'),
 (9, 2, 1, 'Mi trabajo exige que atienda varios asuntos al mismo tiempo.'),
+(9, 3, 3, 'Mi trabajo exige que esté muy concentrado'),
 (10, 1, 3, '¿Ha tenido la impresión de que su vida se va a acortar, que se va a morir antes que otras personas o que tiene un futuro limitado?'),
 (10, 2, 2, 'En mi trabajo soy responsable de cosas de mucho valor.'),
+(10, 3, 3, 'Mi trabajo requiere que memorice mucha información'),
 (11, 1, 4, '¿Ha tenido dificultades para dormir?'),
 (11, 2, 2, 'Respondo ante mi jefe por los resultados de toda mí área de trabajo. '),
+(11, 3, 3, 'En mi trabajo tengo que tomar decisiones difíciles muy rápido'),
 (12, 1, 4, '¿Ha estado particularmente irritable  o le han dado arranques de coraje?'),
 (12, 2, 2, 'En mi trabajo me dan Órdenes contradictorias.'),
+(12, 3, 3, 'Mi trabajo exige que atienda varios asuntos al mismo tiempo'),
 (13, 1, 4, '¿Ha tenido dificultad para concentrarse?'),
 (13, 2, 2, 'Considero que en mi trabajo me piden hacer cosas innecesarias.'),
+(13, 3, 4, 'En mi trabajo soy responsable de cosas de mucho valor'),
 (14, 1, 4, '¿Ha estado nervioso o constantemente en alerta?'),
 (14, 2, 3, 'Trabajo horas extras mas de tres veces a la semana.'),
+(14, 3, 4, 'Respondo ante mi jefe por los resultados de toda mi área de trabajo'),
 (15, 1, 4, '¿Se ha sobresaltado fácilmente por cualquier cosa?'),
 (15, 2, 3, 'Mi trabajo me exige laborar en días de descanso, festivos y fines de semana.'),
+(15, 3, 4, 'En el trabajo me dan órdenes contradictorias'),
 (16, 2, 3, 'Considero que el tiempo en el trabajo es mucho y perjudica mis actividades familiares o personales.'),
+(16, 3, 4, 'Considero que en mi trabajo me piden hacer cosas innecesarias'),
 (17, 2, 3, '\r\nPienso en las actividades familiares o personales cuando estoy en el trabajo.'),
+(17, 3, 5, 'Trabajo horas extras más de tres veces a la semana'),
 (18, 2, 4, 'Mi trabajo permite que desarrolle nuevas habilidades.'),
+(18, 3, 5, 'Mi trabajo me exige laborar en días de descanso, festivos o fines de semana'),
 (19, 2, 4, 'En mi trabajo puedo aspirar a un mejor puesto.'),
+(19, 3, 5, 'Considero que el tiempo en el trabajo es mucho y perjudica mis actividades familiares o personales'),
 (20, 2, 4, 'Durante la jornada de trabajo puedo tomar pausas cuando las necesito.'),
+(20, 3, 5, 'Debo atender asuntos de trabajo cuando estoy en casa'),
 (21, 2, 4, 'Puedo decidir a la velocidad en la que realizo mis actividades en mi trabajo.'),
+(21, 3, 5, 'Pienso en las actividades familiares o personales cuando estoy en mi trabajo'),
 (22, 2, 4, 'Puedo cambiar el orden de las actividades que realizo en mi trabajo.'),
+(22, 3, 5, 'Pienso que mis responsabilidades familiares afectan mi trabajo'),
 (23, 2, 5, 'Me informan con claridad cuales son mis funciones.'),
+(23, 3, 6, 'Mi trabajo permite que desarrolle nuevas habilidades'),
 (24, 2, 5, 'Me explican claramente los resultados que debo obtener en mi trabajo.'),
+(24, 3, 6, 'En mi trabajo puedo aspirar a un mejor puesto'),
 (25, 2, 5, 'Me Informan con quién puedo resolver problemas o asuntos de trabajo.'),
+(25, 3, 6, 'Durante mi jornada de trabajo puedo tomar pausas cuando las necesito'),
 (26, 2, 5, ' Me permiten asistir a capacitaciones relacionadas con mi trabajo.'),
+(26, 3, 6, 'Puedo decir cuánto trabajo realizo durante la jornada laboral'),
 (27, 2, 5, 'Recibo capacitación útil para hacer mi trabajo.'),
+(27, 3, 6, 'Puedo decidir la velocidad a la que realizo mis actividades en mi trabajo'),
 (28, 2, 6, 'Mi jefe tiene en cuenta mis puntos de vista y opiniones.'),
+(28, 3, 6, 'Puedo cambiar el orden de las actividades que realizo en mi trabajo'),
 (29, 2, 6, 'Mi jefe ayuda a solucionar los problemas que se presentan en el trabajo.'),
+(29, 3, 7, 'Los cambios que se presentan en mi trabajo dificultan mi labor'),
 (30, 2, 6, 'Puedo confiar en mis compañeros de trabajo.'),
+(30, 3, 7, 'Cuando se presentan cambios en mi trabajo se tienen en cuenta mis ideas o aportaciones'),
 (31, 2, 6, 'Cuando tenemos que realizar trabajo de equipo los compañeros colaboran.'),
+(31, 3, 8, 'Me informan con claridad cuáles son mis funciones'),
 (32, 2, 6, 'Mis compañeros de trabajo me ayudan cuando tengo dificultades.'),
+(32, 3, 8, 'Me explican claramente los resultados que debo obtener en mi trabajo'),
 (33, 2, 6, 'En mi trabajo puedo expresarme libremente sin interrupciones.'),
+(33, 3, 8, 'Me explican claramente los objetivos de mi trabajo'),
 (34, 2, 6, 'Recibo criticas constantes a mi persona y/o trabajo.'),
+(34, 3, 8, 'Me informan con quién puedo resolver probloemas o asuntos de ytrabajo'),
 (35, 2, 6, 'Recibo burlas,calumnias, difamaciones,humillaciones o rídiculizaciones.'),
+(35, 3, 8, 'Me permiten asistir a capacitaciones relacionadas con mi trabajo'),
 (36, 2, 6, 'Se ignora mi presencia o se me excluye de las reuniones de trabajo y en la toma de decisiones.'),
+(36, 3, 8, 'Recibo capacitación útil para hacer mi trabajo'),
 (37, 2, 6, 'Se manipulan las situaciones de trabajo para hacerme parecer un mal trabajador. '),
+(37, 3, 9, 'Mi jefe ayuda a organizar mejor el trabajo'),
 (38, 2, 6, 'Se Ignoran mis éxitos laborales y se atribuyen a otros trabajadores.'),
+(38, 3, 9, 'Mi jefe tiene en cuenta mis puntos de vista y opiniones'),
 (39, 2, 6, 'Me bloquean o impiden las oportunidades que tengo para obtener ascenso o mejora en mi trabajo.'),
+(39, 3, 9, 'Mi jefe me comunica a tiempo la información relacionada con el trabajo'),
 (40, 2, 6, 'He presenciado actos de violencia en mi centro de trabajo.'),
+(40, 3, 9, 'La orientación que me da mi jefe me ayuda a realizar mejor mi trabajo'),
 (41, 2, 7, 'Atiendo clientes o usuarios muy enojados.'),
+(41, 3, 9, 'Mi jefe ayuda a solucionar los problemas que se presentan en el trabjo'),
 (42, 2, 7, 'Mi trabajo me exige atender personas muy necesitadas de ayuda o enfermas. '),
+(42, 3, 10, 'Puedo confiar en mis compañeros de mi trabajo'),
 (43, 2, 7, 'Para hacer mi trabajo debo demostrar sentimientos distintos a los míos. '),
+(43, 3, 10, 'Entre compañeros solucionamos los problemas de trabajo de forma respetuosa'),
 (44, 2, 8, 'Comunican tarde los asuntos de trabajo.'),
+(44, 3, 10, 'En mi trabajo me hacen sentir parte del grupo'),
 (45, 2, 8, 'Dificultan el logro de los resultados del trabajo.'),
-(46, 2, 8, 'Ignoran las sugerencias para mejorar su trabajo.');
+(45, 3, 10, 'Cuando tenemos que realizar trabajo de equipo los compañeros colaboraron'),
+(46, 2, 8, 'Ignoran las sugerencias para mejorar su trabajo.'),
+(46, 3, 10, 'Mis compañeros de trabajo me ayudan cuando tengo dificultades'),
+(47, 3, 11, 'Me informan sobre lo que hago bien en mi trabajo'),
+(48, 3, 11, 'La forma como evalúan mi trabajo en mi centro de trabajo me ayuda a mejorar mi desempeño'),
+(49, 3, 11, 'En mi centro de trabajo me pagan a tiempo mi salario'),
+(50, 3, 11, 'El pago que recibo es el que merezco por el trabajo que realizo'),
+(51, 3, 11, 'Si obtengo los resultados esperados esperados en mi trabajo me recompensan o reconocen '),
+(52, 3, 11, 'Las personas que hacen bien el trabajo pueden crecer laboralmente'),
+(53, 3, 11, 'Considero que mi trabajo es estable'),
+(54, 3, 11, 'En mi trabajo existe continua rotación de personal'),
+(55, 3, 11, 'Siento orgullo de laborar en este centro de trabajo'),
+(56, 3, 11, 'Me siento comprometido con mi trabajo'),
+(57, 3, 12, 'En mi tarabajo puedo expresarme libremente sin interrupciones'),
+(58, 3, 12, 'Recibo críticas constantes a mi persona y/o trabajo'),
+(59, 3, 12, 'Recibo burlas,calumnias,difamaciones,humillaciones o ridiculizaciones'),
+(60, 3, 12, 'Se ignora mi presencia o se me excluye de las reuniones de trabajo y en la toma de decisiones'),
+(61, 3, 12, 'Se manipulan las situaciones de trabajo para hacerme parecer un mal trabajador'),
+(62, 3, 12, 'Se ignoran mis éxitos laborales y se atribuyen a otros trabajadores'),
+(63, 3, 12, 'Me bloquean o impiden las oportunidades que tengo para obtener ascenso o mejora de trabajo'),
+(64, 3, 12, 'He presenciado actos de violencia en mi centro de trabajo'),
+(65, 3, 13, 'Atiendo clientes o usuarios muy enojados'),
+(66, 3, 13, 'Mi trabajo me exige atender personas muy necesitadas de ayuda o enfermas'),
+(67, 3, 13, 'Para hacer mi trabajo debo demostrar sentimientos distintos a los mios'),
+(68, 3, 13, 'Mi trabajo me exige atender situaciones de violencia'),
+(69, 3, 14, 'Comunican tarde los asuntos del trabajo'),
+(70, 3, 14, 'Dificultan el logro de los resultados del trabjo'),
+(71, 3, 14, 'Cooperan poco cuando se necesita'),
+(72, 3, 14, 'Ignoran las sugerencias para mejorar su trabajo');
 
 -- --------------------------------------------------------
 
@@ -1449,7 +2156,7 @@ CREATE TABLE IF NOT EXISTS `respuesta` (
   PRIMARY KEY (`respuesta_id`),
   KEY `fk_resp` (`num_empleado`),
   KEY `fk_resp_preg` (`pregunta_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=265 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=699 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `respuesta`
@@ -1672,7 +2379,301 @@ INSERT INTO `respuesta` (`respuesta_id`, `num_empleado`, `pregunta_id`, `guia_id
 (261, 98765432, 46, 2, 3),
 (262, 98765432, 41, 2, NULL),
 (263, 98765432, 42, 2, NULL),
-(264, 98765432, 43, 2, NULL);
+(264, 98765432, 43, 2, NULL),
+(265, 260197, 1, 2, 2),
+(266, 260197, 2, 2, 2),
+(267, 260197, 3, 2, 2),
+(268, 260197, 4, 2, 2),
+(269, 260197, 5, 2, 2),
+(270, 260197, 6, 2, 2),
+(271, 260197, 7, 2, 2),
+(272, 260197, 8, 2, 3),
+(273, 260197, 9, 2, 1),
+(274, 260197, 10, 2, 3),
+(275, 260197, 11, 2, 1),
+(276, 260197, 12, 2, 1),
+(277, 260197, 13, 2, 1),
+(278, 260197, 14, 2, 3),
+(279, 260197, 15, 2, 3),
+(280, 260197, 16, 2, 3),
+(281, 260197, 17, 2, 3),
+(282, 260197, 18, 2, 1),
+(283, 260197, 19, 2, 3),
+(284, 260197, 20, 2, 1),
+(285, 260197, 21, 2, 1),
+(286, 260197, 22, 2, 1),
+(287, 260197, 23, 2, 1),
+(288, 260197, 24, 2, 1),
+(289, 260197, 25, 2, 1),
+(290, 260197, 26, 2, 1),
+(291, 260197, 27, 2, 3),
+(292, 260197, 28, 2, 2),
+(293, 260197, 29, 2, 1),
+(294, 260197, 30, 2, 1),
+(295, 260197, 31, 2, 2),
+(296, 260197, 32, 2, 1),
+(297, 260197, 33, 2, 2),
+(298, 260197, 34, 2, 3),
+(299, 260197, 35, 2, 3),
+(300, 260197, 36, 2, 3),
+(301, 260197, 37, 2, 3),
+(302, 260197, 38, 2, 3),
+(303, 260197, 39, 2, 3),
+(304, 260197, 40, 2, 4),
+(305, 260197, 41, 2, NULL),
+(306, 260197, 42, 2, NULL),
+(307, 260197, 43, 2, NULL),
+(308, 260197, 44, 2, NULL),
+(309, 260197, 45, 2, NULL),
+(310, 260197, 46, 2, NULL),
+(311, 260197, 1, 3, 3),
+(312, 260197, 2, 3, 0),
+(313, 260197, 3, 3, 0),
+(314, 260197, 4, 3, 0),
+(315, 260197, 5, 3, 0),
+(316, 260197, 6, 3, 3),
+(317, 260197, 7, 3, 3),
+(318, 260197, 8, 3, 4),
+(319, 260197, 9, 3, 3),
+(320, 260197, 10, 3, 2),
+(321, 260197, 11, 3, 2),
+(322, 260197, 12, 3, 2),
+(323, 260197, 13, 3, 3),
+(324, 260197, 14, 3, 2),
+(325, 260197, 15, 3, 2),
+(326, 260197, 16, 3, 2),
+(327, 260197, 17, 3, 2),
+(328, 260197, 18, 3, 2),
+(329, 260197, 19, 3, 1),
+(330, 260197, 20, 3, 2),
+(331, 260197, 21, 3, 1),
+(332, 260197, 22, 3, 0),
+(333, 260197, 23, 3, 1),
+(334, 260197, 24, 3, 0),
+(335, 260197, 25, 3, 2),
+(336, 260197, 26, 3, 2),
+(337, 260197, 27, 3, 2),
+(338, 260197, 28, 3, 1),
+(339, 260197, 29, 3, 1),
+(340, 260197, 30, 3, 3),
+(341, 260197, 31, 3, 0),
+(342, 260197, 32, 3, 0),
+(343, 260197, 33, 3, 0),
+(344, 260197, 34, 3, 1),
+(345, 260197, 35, 3, 0),
+(346, 260197, 36, 3, 1),
+(347, 260197, 37, 3, 1),
+(348, 260197, 38, 3, 2),
+(349, 260197, 39, 3, 1),
+(350, 260197, 40, 3, 1),
+(351, 260197, 41, 3, 2),
+(352, 260197, 42, 3, 1),
+(353, 260197, 43, 3, 1),
+(354, 260197, 44, 3, 0),
+(355, 260197, 45, 3, 1),
+(356, 260197, 46, 3, 1),
+(357, 260197, 47, 3, 0),
+(358, 260197, 48, 3, 1),
+(359, 260197, 49, 3, 0),
+(360, 260197, 50, 3, 2),
+(361, 260197, 51, 3, 1),
+(362, 260197, 52, 3, 0),
+(363, 260197, 53, 3, 1),
+(364, 260197, 54, 3, 1),
+(365, 260197, 55, 3, 1),
+(366, 260197, 56, 3, 0),
+(367, 260197, 57, 3, 1),
+(368, 260197, 58, 3, 0),
+(369, 260197, 59, 3, 0),
+(370, 260197, 60, 3, 0),
+(371, 260197, 61, 3, 0),
+(372, 260197, 62, 3, 0),
+(373, 260197, 63, 3, 0),
+(374, 260197, 64, 3, 0),
+(375, 260197, 69, 3, 1),
+(376, 260197, 70, 3, 0),
+(377, 260197, 71, 3, 0),
+(378, 260197, 72, 3, 0),
+(379, 260197, 65, 3, NULL),
+(380, 260197, 66, 3, NULL),
+(381, 260197, 67, 3, NULL),
+(382, 260197, 68, 3, NULL),
+(383, 260197, 1, 1, 0),
+(456, 12345678, 1, 3, 4),
+(457, 12345678, 2, 3, 0),
+(458, 12345678, 3, 3, 0),
+(459, 12345678, 4, 3, 4),
+(460, 12345678, 5, 3, 0),
+(461, 12345678, 6, 3, 0),
+(462, 12345678, 7, 3, 0),
+(463, 12345678, 8, 3, 0),
+(464, 12345678, 9, 3, 0),
+(465, 12345678, 10, 3, 0),
+(466, 12345678, 11, 3, 0),
+(467, 12345678, 12, 3, 0),
+(468, 12345678, 13, 3, 0),
+(469, 12345678, 14, 3, 0),
+(470, 12345678, 15, 3, 0),
+(471, 12345678, 16, 3, 0),
+(472, 12345678, 17, 3, 0),
+(473, 12345678, 18, 3, 0),
+(474, 12345678, 19, 3, 0),
+(475, 12345678, 20, 3, 0),
+(476, 12345678, 21, 3, 0),
+(477, 12345678, 22, 3, 0),
+(478, 12345678, 23, 3, 4),
+(479, 12345678, 24, 3, 4),
+(480, 12345678, 25, 3, 4),
+(481, 12345678, 26, 3, 4),
+(482, 12345678, 27, 3, 4),
+(483, 12345678, 28, 3, 4),
+(484, 12345678, 29, 3, 0),
+(485, 12345678, 30, 3, 4),
+(486, 12345678, 31, 3, 4),
+(487, 12345678, 32, 3, 4),
+(488, 12345678, 33, 3, 4),
+(489, 12345678, 34, 3, 4),
+(490, 12345678, 35, 3, 4),
+(491, 12345678, 36, 3, 4),
+(492, 12345678, 37, 3, 4),
+(493, 12345678, 38, 3, 4),
+(494, 12345678, 39, 3, 4),
+(495, 12345678, 40, 3, 4),
+(496, 12345678, 41, 3, 4),
+(497, 12345678, 42, 3, 4),
+(498, 12345678, 43, 3, 4),
+(499, 12345678, 44, 3, 4),
+(500, 12345678, 45, 3, 4),
+(501, 12345678, 46, 3, 4),
+(502, 12345678, 47, 3, 4),
+(503, 12345678, 48, 3, 4),
+(504, 12345678, 49, 3, 4),
+(505, 12345678, 50, 3, 4),
+(506, 12345678, 51, 3, 4),
+(507, 12345678, 52, 3, 4),
+(508, 12345678, 53, 3, 4),
+(509, 12345678, 54, 3, 0),
+(510, 12345678, 55, 3, 4),
+(511, 12345678, 56, 3, 4),
+(512, 12345678, 57, 3, 4),
+(513, 12345678, 58, 3, 0),
+(514, 12345678, 59, 3, 0),
+(515, 12345678, 60, 3, 0),
+(516, 12345678, 61, 3, 0),
+(517, 12345678, 62, 3, 0),
+(518, 12345678, 63, 3, 0),
+(519, 12345678, 64, 3, 0),
+(520, 12345678, 65, 3, 0),
+(521, 12345678, 66, 3, 0),
+(522, 12345678, 67, 3, 0),
+(523, 12345678, 68, 3, 1),
+(524, 12345678, 69, 3, 0),
+(525, 12345678, 70, 3, 0),
+(526, 12345678, 71, 3, 0),
+(527, 12345678, 72, 3, 0),
+(528, 12345678, 1, 1, 1),
+(529, 12345678, 2, 1, 1),
+(530, 12345678, 3, 1, 0),
+(531, 12345678, 4, 1, 0),
+(532, 12345678, 5, 1, 1),
+(533, 12345678, 6, 1, 0),
+(534, 12345678, 7, 1, 0),
+(535, 12345678, 8, 1, 0),
+(536, 12345678, 9, 1, 0),
+(537, 12345678, 10, 1, 0),
+(538, 12345678, 11, 1, 0),
+(539, 12345678, 12, 1, 0),
+(540, 12345678, 13, 1, 1),
+(541, 12345678, 14, 1, 1),
+(542, 12345678, 15, 1, 1),
+(543, 22334455, 1, 1, 1),
+(544, 22334455, 2, 1, 0),
+(545, 22334455, 3, 1, 1),
+(546, 22334455, 4, 1, 1),
+(547, 22334455, 5, 1, 0),
+(548, 22334455, 6, 1, 0),
+(549, 22334455, 7, 1, 1),
+(550, 22334455, 8, 1, 0),
+(551, 22334455, 9, 1, 1),
+(552, 22334455, 10, 1, 0),
+(553, 22334455, 11, 1, 1),
+(554, 22334455, 12, 1, 0),
+(555, 22334455, 13, 1, 1),
+(556, 22334455, 14, 1, 0),
+(557, 22334455, 15, 1, 1),
+(626, 22334455, 1, 3, 2),
+(627, 22334455, 2, 3, 1),
+(628, 22334455, 3, 3, 1),
+(629, 22334455, 4, 3, 3),
+(630, 22334455, 5, 3, 2),
+(631, 22334455, 6, 3, 2),
+(632, 22334455, 7, 3, 1),
+(633, 22334455, 8, 3, 1),
+(634, 22334455, 9, 3, 3),
+(635, 22334455, 10, 3, 4),
+(636, 22334455, 11, 3, 3),
+(637, 22334455, 12, 3, 3),
+(638, 22334455, 13, 3, 0),
+(639, 22334455, 14, 3, 1),
+(640, 22334455, 15, 3, 1),
+(641, 22334455, 16, 3, 1),
+(642, 22334455, 17, 3, 1),
+(643, 22334455, 18, 3, 1),
+(644, 22334455, 19, 3, 1),
+(645, 22334455, 20, 3, 2),
+(646, 22334455, 21, 3, 2),
+(647, 22334455, 22, 3, 2),
+(648, 22334455, 23, 3, 2),
+(649, 22334455, 24, 3, 3),
+(650, 22334455, 25, 3, 3),
+(651, 22334455, 26, 3, 3),
+(652, 22334455, 27, 3, 3),
+(653, 22334455, 28, 3, 2),
+(654, 22334455, 29, 3, 1),
+(655, 22334455, 30, 3, 1),
+(656, 22334455, 31, 3, 2),
+(657, 22334455, 32, 3, 3),
+(658, 22334455, 33, 3, 3),
+(659, 22334455, 34, 3, 2),
+(660, 22334455, 35, 3, 1),
+(661, 22334455, 36, 3, 3),
+(662, 22334455, 37, 3, 1),
+(663, 22334455, 38, 3, 1),
+(664, 22334455, 39, 3, 1),
+(665, 22334455, 40, 3, 2),
+(666, 22334455, 41, 3, 3),
+(667, 22334455, 42, 3, 0),
+(668, 22334455, 43, 3, 0),
+(669, 22334455, 44, 3, 0),
+(670, 22334455, 45, 3, 1),
+(671, 22334455, 46, 3, 2),
+(672, 22334455, 47, 3, 1),
+(673, 22334455, 48, 3, 2),
+(674, 22334455, 49, 3, 1),
+(675, 22334455, 50, 3, 3),
+(676, 22334455, 51, 3, 3),
+(677, 22334455, 52, 3, 2),
+(678, 22334455, 53, 3, 3),
+(679, 22334455, 54, 3, 2),
+(680, 22334455, 55, 3, 3),
+(681, 22334455, 56, 3, 3),
+(682, 22334455, 57, 3, 1),
+(683, 22334455, 58, 3, 3),
+(684, 22334455, 59, 3, 2),
+(685, 22334455, 60, 3, 3),
+(686, 22334455, 61, 3, 2),
+(687, 22334455, 62, 3, 2),
+(688, 22334455, 63, 3, 2),
+(689, 22334455, 64, 3, 3),
+(690, 22334455, 69, 3, 2),
+(691, 22334455, 70, 3, 0),
+(692, 22334455, 71, 3, 0),
+(693, 22334455, 72, 3, 0),
+(694, 22334455, 65, 3, NULL),
+(695, 22334455, 66, 3, NULL),
+(696, 22334455, 67, 3, NULL),
+(697, 22334455, 68, 3, NULL),
+(698, 22334455, 1, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -1686,7 +2687,7 @@ CREATE TABLE IF NOT EXISTS `seccion` (
   `guia_id` int(11) NOT NULL,
   `nombre_seccion` varchar(255) NOT NULL,
   PRIMARY KEY (`seccion_id`,`guia_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `seccion`
@@ -1695,16 +2696,30 @@ CREATE TABLE IF NOT EXISTS `seccion` (
 INSERT INTO `seccion` (`seccion_id`, `guia_id`, `nombre_seccion`) VALUES
 (1, 1, 'I.- Acontecimiento traumático severo'),
 (1, 2, 'Para responder las preguntas siguientes considere las condiciones de su centro de trabajo, asi como la cantidad y ritmo de trabajo.'),
+(1, 3, 'Para responder las preguntas siguientes considere las condiciones ambientales de su centro de trabajo'),
 (2, 1, 'II.- Recuerdos persistentes sobre el acontecimiento (durante el último mes:'),
 (2, 2, 'Las preguntas siguientes están relacionadas con las actividades que realiza en su trabajo y las responsabilidades que tiene.'),
+(2, 3, 'Para responder a las preguntas siguientes piense en la cantidad y ritmo de trabajo que tiene'),
 (3, 1, 'III.- Esfuerzo por evitar circustancias parecidas o asociadas al acontecimiento (durante el último mes):'),
 (3, 2, 'Las preguntas siguientes están relacionadas con el tiempo destinado a su trabajo y sus responsabilidades familiares.'),
+(3, 3, 'Las preguntas siguientes están relacionadas con el esfuerzo mental que le exige su trabajo'),
 (4, 1, 'IV.- Afectación (durante el último mes):'),
 (4, 2, 'Las preguntas siguientes están relacionadas con las decisiones que puede tomar en su trabajo.'),
+(4, 3, 'Las preguntas siguientes están relacionadas con las actividades que realiza en su trabajo y las responsabilidades que tiene'),
 (5, 2, 'Las preguntas siguientes están relacionadas con la capacitación e información que recibe sobre su trabajo.'),
+(5, 3, 'Las preguntas están relacionadas con su jornada de trabajo'),
 (6, 2, 'Las preguntas siguientes se refieren a las relaciones con sus compañeros de trabajo y su jefe.'),
+(6, 3, 'Las preguntas siguientes están relacionadas con las decisiones que puede tomar en su trabajo'),
 (7, 2, 'Las preguntas siguientes están relacionadas con la atención a clientes y usuarios.'),
-(8, 2, 'Las siguientes preguntas están relacionadas con las actitudes de los trabajadores que supervisa.');
+(7, 3, 'Las preguntas siguientes están relacionadas con cualquier tipo de cambio que ocurra en su trabajo(considere que los últimos cambios realizados)'),
+(8, 2, 'Las siguientes preguntas están relacionadas con las actitudes de los trabajadores que supervisa.'),
+(8, 3, 'Las preguntas siguientes están relacionadas con la capacitación e información que se le proporciona sobre su trabajo'),
+(9, 3, 'Las preguntas siguientes están relacionadas con el o los jefes con quien tiene contacto'),
+(10, 3, 'Las preguntas siguientes se refieren a las relaciones con sus compañeros'),
+(11, 3, 'Las preguntas siguientes están relacionadas con la información que recibe sobre su rendimiento en el trabajo, el reconocimiento, el sentido de pertenencia y la estabilidad que le ofrece su trabajo'),
+(12, 3, 'Las preguntas siguientes están relacionadas con actos de violencia laboral (malos tratos, acoso, hostigamiento, acoso psicológico)'),
+(13, 3, 'Las preguntas siguientes están relacionadas con la atención a clientes y usuarios'),
+(14, 3, 'Las preguntas siguientes están relacionadas con las actitudes de las personas que supervisa');
 
 -- --------------------------------------------------------
 
@@ -1765,46 +2780,102 @@ CREATE TABLE IF NOT EXISTS `valores_opciones` (
   PRIMARY KEY (`pregunta_id`,`guia_id`),
   KEY `guia_id` (`guia_id`),
   KEY `fk_form_valor` (`forma_evaluar_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `valores_opciones`
 --
 
 INSERT INTO `valores_opciones` (`pregunta_id`, `guia_id`, `forma_evaluar_id`) VALUES
+(1, 3, 1),
+(4, 3, 1),
 (18, 2, 1),
 (19, 2, 1),
 (20, 2, 1),
 (21, 2, 1),
 (22, 2, 1),
 (23, 2, 1),
+(23, 3, 1),
 (24, 2, 1),
+(24, 3, 1),
 (25, 2, 1),
+(25, 3, 1),
 (26, 2, 1),
+(26, 3, 1),
 (27, 2, 1),
+(27, 3, 1),
 (28, 2, 1),
+(28, 3, 1),
 (29, 2, 1),
 (30, 2, 1),
+(30, 3, 1),
 (31, 2, 1),
+(31, 3, 1),
 (32, 2, 1),
+(32, 3, 1),
 (33, 2, 1),
+(33, 3, 1),
+(34, 3, 1),
+(35, 3, 1),
+(36, 3, 1),
+(37, 3, 1),
+(38, 3, 1),
+(39, 3, 1),
+(40, 3, 1),
+(41, 3, 1),
+(42, 3, 1),
+(43, 3, 1),
+(44, 3, 1),
+(45, 3, 1),
+(46, 3, 1),
+(47, 3, 1),
+(48, 3, 1),
+(49, 3, 1),
+(50, 3, 1),
+(51, 3, 1),
+(52, 3, 1),
+(53, 3, 1),
+(55, 3, 1),
+(56, 3, 1),
+(57, 3, 1),
 (1, 2, 2),
 (2, 2, 2),
+(2, 3, 2),
 (3, 2, 2),
+(3, 3, 2),
 (4, 2, 2),
 (5, 2, 2),
+(5, 3, 2),
 (6, 2, 2),
+(6, 3, 2),
 (7, 2, 2),
+(7, 3, 2),
 (8, 2, 2),
+(8, 3, 2),
 (9, 2, 2),
+(9, 3, 2),
 (10, 2, 2),
+(10, 3, 2),
 (11, 2, 2),
+(11, 3, 2),
 (12, 2, 2),
+(12, 3, 2),
 (13, 2, 2),
+(13, 3, 2),
 (14, 2, 2),
+(14, 3, 2),
 (15, 2, 2),
+(15, 3, 2),
 (16, 2, 2),
+(16, 3, 2),
 (17, 2, 2),
+(17, 3, 2),
+(18, 3, 2),
+(19, 3, 2),
+(20, 3, 2),
+(21, 3, 2),
+(22, 3, 2),
+(29, 3, 2),
 (34, 2, 2),
 (35, 2, 2),
 (36, 2, 2),
@@ -1817,7 +2888,23 @@ INSERT INTO `valores_opciones` (`pregunta_id`, `guia_id`, `forma_evaluar_id`) VA
 (43, 2, 2),
 (44, 2, 2),
 (45, 2, 2),
-(46, 2, 2);
+(46, 2, 2),
+(54, 3, 2),
+(58, 3, 2),
+(59, 3, 2),
+(60, 3, 2),
+(61, 3, 2),
+(62, 3, 2),
+(63, 3, 2),
+(64, 3, 2),
+(65, 3, 2),
+(66, 3, 2),
+(67, 3, 2),
+(68, 3, 2),
+(69, 3, 2),
+(70, 3, 2),
+(71, 3, 2),
+(72, 3, 2);
 
 --
 -- Restricciones para tablas volcadas

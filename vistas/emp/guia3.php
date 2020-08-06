@@ -2,7 +2,7 @@
   <html lang="en">
 
   <?php
-    require_once ("../../php/controller/CtrlGuia2.php");
+    require_once ("../../php/controller/CtrlGuia3.php");
     require_once ("../../php/DTO/PreguntaDTO.php");
 
   ?>
@@ -31,7 +31,7 @@
       </head>
       <body>
         
-        <input type="hidden" name="usuario" id="usuario" value="260197">
+        <input type="hidden" name="usuario" id="usuario" value="22334455">
           <header>
               <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
                   <a class="navbar-brand" href="#">
@@ -72,7 +72,7 @@
                             <span>
                                 <strong>
                                     <h2>
-                                        Guía de Referencia II
+                                        Guía de Referencia III
                                     </h2>
                                 </strong>
                                 <br/>
@@ -82,7 +82,7 @@
                         </h4>
                         <p>
                             <strong>
-                                CUESTIONARIO PARA IDENTIFICAR LOS FACTORES DE RIESGO PSICOSOCIAL EN LOS CENTROS
+                                CUESTIONARIO PARA IDENTIFICAR LOS FACTORES DE RIESGO PSICOSOCIAL Y EVALUAR EL ENTORNO ORGANIZACIONAL EN LOS CENTROS
                                 DE TRABAJO.
                             </strong>
                         </p>
@@ -164,7 +164,7 @@
           </script>
           <script src="../../resources/bootstrap/js/bootstrap.min.js"></script>
           <script src="../../resources/js/jquery-ui.js"></script>
-          <script src="../../resources/js/guia2.js"></script>
+          <script src="../../resources/js/guia3.js"></script>
           <script>
           </script>
       </body>

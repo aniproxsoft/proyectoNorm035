@@ -1,11 +1,15 @@
+  <?php
+    require_once '../../php/controller/CtrlEmpleados.php';
+    $ctrlEmpleados= new CtrlEmpleados();
+
+    $num_empleado=base64_decode(filter_input(INPUT_GET, "num"));
+    $empleado=$ctrlEmpleados->getEmpleadoSeleccionado($num_empleado);
+    $resultadoGuia=$ctrlEmpleados->getResultadoGuia3($num_empleado);
+  ?>
+
+
   <!DOCTYPE doctype html>
   <html lang="en">
-
-  <?php
-    require_once ("../../php/controller/CtrlGuia2.php");
-    require_once ("../../php/DTO/PreguntaDTO.php");
-
-  ?>
       <head>
           <meta charset="utf-8">
               <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
@@ -23,6 +27,7 @@
                                       </link></link>
                                       <link href="../../resources/css/jquery-ui.css" rel="stylesheet"></link>
                                       <link href="../../resources/css/norma.css" rel="stylesheet"></link>
+                                       <link href="../../resources/font/all.css" rel="stylesheet">
                               
                       </meta>
                   </meta>
@@ -30,8 +35,6 @@
           </meta>
       </head>
       <body>
-        
-        <input type="hidden" name="usuario" id="usuario" value="260197">
           <header>
               <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
                   <a class="navbar-brand" href="#">
@@ -54,85 +57,38 @@
                   </div>
               </nav>
           </header>
-          <main role="main">     
-        
-       <main role="main">
-         
-                <div class="card-body-norma">
-                    <center>
-                        <img alt="Generic placeholder image" class="rounded mx-auto d-block" height="180" src="../../resources/img/utn_256.png" width="180">
-                        </img>
-                        <h4>
-                            UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL
-                        </h4>
-                        <h4 class="card-title">
-                            Organismo Público Descentralizado del Gobierno del Estado de México.
-                            <br/>
-                            <br/>
-                            <span>
-                                <strong>
-                                    <h2>
-                                        Guía de Referencia II
-                                    </h2>
-                                </strong>
-                                <br/>
-                                Norma Oficial Mexicana NOM-035-STPS-2018, Factores de Riesgo Psicosocial en el Trabajo.
-                            </span>
-                            <br/>
-                        </h4>
-                        <p>
-                            <strong>
-                                CUESTIONARIO PARA IDENTIFICAR LOS FACTORES DE RIESGO PSICOSOCIAL EN LOS CENTROS
-                                DE TRABAJO.
-                            </strong>
-                        </p>
-                        
-                    </center>
-                </div>
-                <!-- /container -->
-            </hr>
-        </main>
-      <hr>
-     <center>
-        <h3>Contesta la Guía que se le indica</h3>
-      </center>
-      <form id="formulario">
-        <div class="container-norma"  id="contenedor" name="con1" style="display: block;"> 
-          <div class="card">            
-            <div id="tab" class="card-body">
-              <center id="contestar">
-              <button  class="btn-primary btn" onclick="contestar()">Contestar</button>
-              </center>         
+          <main role="main">
+          <br>
+          <div class="container-norma"  id="contenedor" name="con1" style="display: block;">      
+            <div class="card">
+              <h4 class="card-header"><strong>Respuestas de la Guía de Referencia III de <?php echo $empleado[0]['nombre_completo']?></strong></h4>              
+              <div class="card-body">    
+                <div  style="position: relative;height: 450px;overflow: auto;">        
+                  <table class="table table-hover " id="respuestas">
+                    <thead style="overflow-y: auto; height: 100px; " class="thead-light">
+                      <tr>
+                        <th style="position: sticky; top: 0; " width="25%" scope="col">Numero</th>
+                        <th style="position: sticky; top: 0; " width="25%" scope="col">Pregunta</th> <th style="position: sticky; top: 0; " width="25%" scope="col">Respuesta</th>
+                        <th style="position: sticky; top: 0; " width="25%" scope="col">Valor</th>
+                      </tr>
+                    </thead>
+                 
+                    <?php foreach($resultadoGuia as $registro) { ?>
+                      <tbody>
+                        <td scope="row"><?php echo $registro['pregunta_id'] ?></td>
+                        <td scope="row"><?php echo $registro['pregunta_desc'] ?></td>
+                        <td scope="row"><?php echo $registro['respuesta'] ?></td>
+                        <td scope="row"><?php if(is_null($registro['valor_respuesta'])){echo " - ";}else {echo $registro['valor_respuesta'];}?></td>
+                      </tbody>
+                    <?php } ?>
+                 
+                  </table>
             </div>
           </div>
         </div>
-         <!-- /container -->
-         <!-- Button trigger modal -->
-          
-
-          <!-- Modal -->
-          <div class="modal fade" id="seccionModal" tabindex="-1" role="dialog" 
-            aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel"></h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body" id="seccion_desc">
-                  
-                </div>
-                <div class="modal-footer" id="botones_modal">
-                  
-                </div>
-              </div>
-            </div>
-          </div>
-        <br>
-        
-        
+       </div>
+         
+                
          </form>
         <br/>
         <br/>
@@ -150,7 +106,7 @@
                           Privacy
                       </a>
                       ·
-                      <a href="#" style="color: white; ">
+                      <a href="#" style="color: white;">
                           Terms
                       </a>
                   </p>
@@ -164,7 +120,8 @@
           </script>
           <script src="../../resources/bootstrap/js/bootstrap.min.js"></script>
           <script src="../../resources/js/jquery-ui.js"></script>
-          <script src="../../resources/js/guia2.js"></script>
+          
+
           <script>
           </script>
       </body>

@@ -7,7 +7,7 @@ function contestar(){
 }
 $("#seccionModal").modal({backdrop: 'static', keyboard: false});
 var secciones;
-window.fetch("../../php/controller/CtrlGuia2.php?opcion=seccion"
+window.fetch("../../php/controller/CtrlGuia3.php?opcion=seccion"
    ).then(respuesta => {
    if (respuesta.ok){
      return respuesta.json();
@@ -24,7 +24,7 @@ function getSeccion(respuesta,valor){
 		break;
 		case 2:
 			
-			if(resp_array.length==9){
+			if(resp_array.length==5){
 				muestraModalSeccion(respuesta,valor);
 				contestar();
 
@@ -33,7 +33,7 @@ function getSeccion(respuesta,valor){
 			}
 		break;
 		case 3:
-			if(resp_array.length==13){
+			if(resp_array.length==8){
 				muestraModalSeccion(respuesta,valor);
 				contestar();
 
@@ -42,7 +42,7 @@ function getSeccion(respuesta,valor){
 			}
 		break;
 		case 4:
-			if(resp_array.length==17){
+			if(resp_array.length==12){
 				muestraModalSeccion(respuesta,valor);
 				contestar();
 
@@ -52,7 +52,7 @@ function getSeccion(respuesta,valor){
 		break;
 
 		case 5:
-			if(resp_array.length==22){
+			if(resp_array.length==16){
 				muestraModalSeccion(respuesta,valor);
 				contestar();
 
@@ -61,7 +61,7 @@ function getSeccion(respuesta,valor){
 			}
 		break;
 		case 6:
-			if(resp_array.length==27){
+			if(resp_array.length==22){
 				muestraModalSeccion(respuesta,valor);
 				contestar();
 
@@ -70,7 +70,7 @@ function getSeccion(respuesta,valor){
 			}
 		break;
 		case 7:
-			if(resp_array.length==40){
+			if(resp_array.length==28){
 				muestraModalSeccion(respuesta,valor);
 				contestar();
 
@@ -79,11 +79,65 @@ function getSeccion(respuesta,valor){
 			}
 		break;
 		case 8:
-			if(status=1 && resp_array.length==43){
+			if(resp_array.length==30){
 				muestraModalSeccion(respuesta,valor);
 				contestar();
 
-			}else if(status=1 && resp_array.length<43){
+			}else{
+				alert("Contesta todas las preguntas");
+			}
+		break;
+		case 9:
+			if(resp_array.length==36){
+				muestraModalSeccion(respuesta,valor);
+				contestar();
+
+			}else{
+				alert("Contesta todas las preguntas");
+			}
+		break;
+		case 10:
+			if(resp_array.length==41){
+				muestraModalSeccion(respuesta,valor);
+				contestar();
+
+			}else{
+				alert("Contesta todas las preguntas");
+			}
+		break;
+		case 11:
+			if(resp_array.length==46){
+				muestraModalSeccion(respuesta,valor);
+				contestar();
+
+			}else{
+				alert("Contesta todas las preguntas");
+			}
+		break;
+		case 12:
+			if(resp_array.length==56){
+				muestraModalSeccion(respuesta,valor);
+				contestar();
+
+			}else{
+				alert("Contesta todas las preguntas");
+			}
+		break;
+		case 13:
+			if(resp_array.length==64){
+				muestraModalSeccion(respuesta,valor);
+				contestar();
+
+			}else{
+				alert("Contesta todas las preguntas");
+			}
+		break;
+		case 14:
+			if(status=1 && resp_array.length==68){
+				muestraModalSeccion(respuesta,valor);
+				contestar();
+
+			}else if(status=1 && resp_array.length<68){
 				alert("Contesta todas las preguntas");
 			}else if(status=0){
 				muestraModalSeccion(respuesta,valor);
@@ -107,7 +161,7 @@ function muestraModalSeccion(respuesta,valor){
 	let desc="";
     let titulo="";
     let botones="";
-	if(valor==6 || valor==7){
+	if(valor==12 || valor==13){
 		validarSeccion(respuesta,valor);
 	}else{
 		botones="<a style='margin-left:20px' href='#tabla' class='btn btn-primary'"+
@@ -126,7 +180,7 @@ function getPreguntas(seccion,status){
 	document.getElementById("contestar").style.display="none";
 	document.getElementById("contenedor").style.display="block";
 	bajar();
-	window.fetch("../../php/controller/CtrlGuia2.php?opcion=pregunta&id="+seccion
+	window.fetch("../../php/controller/CtrlGuia3.php?opcion=pregunta&id="+seccion
    ).then(respuesta => {
    if (respuesta.ok){
      return respuesta.json();
@@ -162,7 +216,7 @@ function llenaPreguntas(respuesta,seccion){
                     "</td></tr></tbody>";
                
 	}
-	if(seccion==8){
+	if(seccion==14){
 		formulario+="</table>"+
 		"<hr><div id='boton'><button id='botonGuardar' type='button' class='btn btn-primary'"+ 
 		"style='float: right;' "+
@@ -188,7 +242,7 @@ function siguiente(valor){
 
 
 
-window.fetch("../../php/controller/CtrlGuia2.php?opcion=seccion"
+window.fetch("../../php/controller/CtrlGuia3.php?opcion=seccion"
    ).then(respuesta => {
    if (respuesta.ok){
      return respuesta.json();
@@ -227,7 +281,7 @@ function getModal2(valor){
     let botones="";
 
 	switch(valor){
-		case 7:
+		case 13:
 			botones="<button type='button' class='btn btn-secondary' onclick='getModal2("+(valor+1)+")'>No"+
     		"</button><a style='margin-left:20px' href='#tabla' class='btn btn-primary'"+
     		" onclick='getPreguntas("+valor+",1)' data-dismiss='modal' >Si</a>";
@@ -238,7 +292,7 @@ function getModal2(valor){
     		$('#seccion_desc').append("<div id='desc'>"+desc+"</div>");
     		$('#botones_modal').append("<div id='botones'>"+botones+"</div>");
 		break;
-		case 8:
+		case 14:
 			botones="<button type='button' class='btn btn-secondary' data-dismiss='modal' onclick='respuestaNo(0)'>No"+
     		"</button><a style='margin-left:20px' href='#tabla' class='btn btn-primary'"+
     		" onclick='getPreguntas("+valor+",1)' data-dismiss='modal' >Si</a>";
@@ -261,7 +315,7 @@ function armarJson(pregunta_id){
 	document.getElementById("nunca"+pregunta_id).disabled=true;
 
 	var resp=$('input[name=respuesta'+pregunta_id+']:checked', '#formulario').val();
-   	 
+   	var usuario= document.getElementById("usuario").value;
 
    	resp_array.push({pregunta_id,resp,usuario});
    	
@@ -310,7 +364,7 @@ function mandarJson(){
 
 
 	window.fetch("../../php/controller/CtrlRespuestas.php?json=" + encodeURIComponent(json_res)
-   +"&opcion=3").then(respuesta => {
+   +"&opcion=4").then(respuesta => {
    if (respuesta.ok){
      return respuesta.json();
    } else {
@@ -334,20 +388,23 @@ function recibeRespuesta(respuesta){
 
 function validaPreguntas(){
 	var respuestas=0;
-	for (var i = 40; i < resp_array.length; i++) {
+	for (var i = 64; i < resp_array.length; i++) {
 		switch(resp_array[i]["pregunta_id"]){
-			case 44:
+			case 69:
 				respuestas=respuestas+1;
 			break;
-			case 45:
+			case 70:
 				respuestas=respuestas+1;
 			break;
-			case 46:
+			case 71:
+				respuestas=respuestas+1;
+			break;
+			case 72:
 				respuestas=respuestas+1;
 			break;
 		}
 	}
-	if (respuestas==3) {
+	if (respuestas==4) {
 		return true;
 	}else{
 		return false;

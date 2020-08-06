@@ -35,6 +35,14 @@ $conexion->exec("set names utf8");
 		$consulta= null; 
 		$db = null;
 		$conexion=null;
+	}elseif ($opcion==4){
+		$consulta= $conexion->prepare("CALL sp_insert_respuestas_guia_3(?)");
+		$consulta->bindParam(1,$json);
+    	$consulta->execute();
+    	$consulta->closeCursor(); 
+		$consulta= null; 
+		$db = null;
+		$conexion=null;
 	}
 
 	
