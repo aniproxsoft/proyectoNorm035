@@ -85,13 +85,39 @@ $empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
      
        <br>
       
-      <div class="container-norma" style="background-color: white"> 
-        <h2 class="font-weight-bold text-center text-capitalize">Empleados</h2>
+      
+        <div class="container-norma" style="background-color: white"> 
         <hr>
-        <div  style="position: relative;height: 450px;overflow: auto;">
-        <?php for ($i=0; $i < count($empleados) ; $i++) { 
+        <div class="card">
+          
+          <h4 class="card-header"><strong>Empleados</strong></h4>              
+          <hr>
+          <div class="card-body">     
+            <div class="row">
+                
+                <div class="col-md-4"> 
+                  <div class="form-group">
+                    
+                    <input type="text" placeholder="Buscar" class="form-control" id="search" name="search" value="">
+                    
+                  </div>
+                </div>
+                <div class="col-md-1"> 
+                    <div class="form-group">
+                        <button class="btn btn-primary " onclick="buscarEmpleado()" 
+                        title="Buscar" role="button"><i
+                        class="fas fa-search" aria-hidden="true"></i></button>
+                    </div>
+                </div> 
+            </div>     
+            
+            
+            <hr>
+        <div id="tab" style="position: relative;height: 600px;overflow: auto;">
+        <div id="renglones">
+            <?php for ($i=0; $i < count($empleados) ; $i++) { 
 
-        	echo "<div class='row' style='color: black'>
+            echo "<div class='row' style='color: black'>
           
           <div class='col-md-9'>
             <h4>".$empleados[$i]['nombre_completo']."</h4>
@@ -112,30 +138,34 @@ $empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
            echo "            
           </div>
           <div class='col-md-3'>
-          	<div>
-          		<a href='detalle_emp.php?num=". base64_encode ($empleados[$i]['num_empleado'])."' class='btn btn-primary ' style='width:20%'
-									role='button' title='Ver el detalle'><i
-										class='fas fa-eye' aria-hidden='true'></i></a> <!--<a href='#'
-									onclick=''
-									class='btn btn-primary ' style='width:20%' role='button'
-									title='Eliminar el registro.'><i class='fas fa-trash'
-										aria-hidden='true'></i></a>-->
-          	</div>
-          	
+            <div>
+                <a href='detalle_emp.php?num=". base64_encode ($empleados[$i]['num_empleado'])."' class='btn btn-primary ' style='width:20%'
+                                    role='button' title='Ver el detalle'><i
+                                        class='fas fa-eye' aria-hidden='true'></i></a> <!--<a href='#'
+                                    onclick=''
+                                    class='btn btn-primary ' style='width:20%' role='button'
+                                    title='Eliminar el registro.'><i class='fas fa-trash'
+                                        aria-hidden='true'></i></a>-->
+            </div>
+            
           </div>
         </div>  <hr>";
 
         } ?>
+            
+        </div>
+        
         
        
               
-    		  <hr>	</div>
+    		  </div></div></div>
       </div> <!-- /container -->
 
 
     
         
-        <br/>
+        <br/><br/>
+        <br/><br/>
         <footer class="footer">
             <div class="container">
                 <p>
@@ -157,5 +187,6 @@ $empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
         </script>
         <script src="../../resources/bootstrap/js/bootstrap.min.js">
         </script>
+        <script src="../../resources/js/busqueda.js"></script>
     </body>
 </html>

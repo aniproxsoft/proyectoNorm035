@@ -1,4 +1,5 @@
 <?php
+require_once ("../../php/conexion/ClassConnection.php");
 
 class EmpleadoDTO {
 //Variables
@@ -21,12 +22,31 @@ class EmpleadoDTO {
     private $status_guia;
     private $pregunta;
     private $respuesta;
-
-	
+    private $db;
+    private $conexion;
+    private $busqueda;
+    
 
 
 	public function __construct()
     {
+        $this->db      = new connectionDB();
+        $this->conexion = $this->db->get_connection();
+        $this->conexion->exec("set names utf8");
+        $this->busqueda= array();
+    }
+
+    public function get_busqueda_empleados($opc,$search){
+        $consulta= $this->conexion->prepare("CALL sp_busca_empleados(?,?)");
+        $consulta->bindParam(1,$search);
+        $consulta->bindParam(2,$opc);
+        $consulta->execute();
+        while($filas=$consulta->fetch()){
+            $this->busqueda[]=$filas;
+            
+        }
+        return $this->busqueda;
+
     }
 
      //Getters and Setters

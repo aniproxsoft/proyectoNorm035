@@ -91,14 +91,38 @@ $empleados=$ctrlEmpleados->getNumEmpleados();
         <div class="card">
           
           <h4 class="card-header"><strong>Listado de Usuarios</strong></h4>              
-          <div class="card-body">            
-            <hr><a class="btn btn-primary bt-sm" data-target="#nuevoModal" data-toggle="modal"href="nuevo_empleado.php"
-            title="Crear nuevo numero de empleado" role="button"><i
-            class="fas fa-plus" aria-hidden="true"></i></a>
+          <hr>
+          <div class="card-body">     
+            <div class="row">
+                <div class="col-md-1">
+                     <div class="form-group">
+                        <a class="btn btn-primary " data-target="#nuevoModal" data-toggle="modal"href="nuevo_empleado.php"
+                        title="Crear nuevo numero de empleado" role="button"><i
+                        class="fas fa-plus" aria-hidden="true"></i></a>
+                     </div>
+                </div>
+                <div class="col-md-4"> 
+                  <div class="form-group">
+                    
+                    <input type="text" placeholder="Buscar" class="form-control" id="search" name="search" value="">
+                    
+                  </div>
+                </div>
+                <div class="col-md-1"> 
+                    <div class="form-group">
+                        <button class="btn btn-primary " onclick="buscarUser()" href="" 
+                        title="Buscar" role="button"><i
+                        class="fas fa-search" aria-hidden="true"></i></button>
+                    </div>
+                </div> 
+            </div>     
+            
             
             <hr>
-            <table class="table table-hover">
-              <thead class="thead-light">
+            <div id="forma"  style="position: relative;height: 450px;overflow: auto;">        
+                <table class="table table-hover " id="tabla">
+                    <thead style="overflow-y: auto; height: 100px; " class="thead-light">
+                
                 <tr>
                   <th width="25%" scope="col">Numero de empleado</th>
                   <th width="25%" scope="col">Guía</th>                
@@ -128,7 +152,7 @@ $empleados=$ctrlEmpleados->getNumEmpleados();
                                                
               </tbody>
             </table>
-            
+             </div>
           </div>
         </div>
         <br>
@@ -211,5 +235,7 @@ $empleados=$ctrlEmpleados->getNumEmpleados();
                     return /\d/.test(String.fromCharCode(keynum));
                 }
         </script>
+        <script src="../../resources/js/busqueda.js"></script>
+
     </body>
 </html>
