@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.4
+-- version 4.7.4
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 06-08-2020 a las 04:58:53
--- Versión del servidor: 5.7.24
--- Versión de PHP: 7.2.14
+-- Tiempo de generación: 07-08-2020 a las 01:39:51
+-- Versión del servidor: 5.7.19
+-- Versión de PHP: 5.6.31
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -141,6 +141,39 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_autentification` (IN `empleado_n
 
     
     
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_busca_empleados`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_busca_empleados` (`search` VARCHAR(5000), `opc` INT(11))  BEGIN
+	CASE opc
+	WHEN 1 THEN
+			SELECT e.num_empleado,CONCAT(e.nombre_empleado, ' ' , e.apellidos)as nombre_completo,
+			(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
+    		WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,
+    		ur.nombre_rol,d.nombre_division
+			FROM empleado e
+			LEFT JOIN usuario_rol ur on e.rol_id=ur.rol_id
+			LEFT JOIN division d on e.division_id=d.division_id
+			WHERE (e.num_empleado like (SELECT CONCAT('%', search, '%'))
+			or CONCAT(e.nombre_empleado, ' ' , e.apellidos) like (SELECT CONCAT('%', search, '%') ))
+
+			and   e.status>2 ;
+	WHEN 2 THEN
+		SELECT e.num_empleado,CONCAT(e.nombre_empleado, ' ' , e.apellidos)as nombre_completo,
+			(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
+    		WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,
+    		ur.nombre_rol,d.nombre_division,(SELECT CASE WHEN e.status='3' 
+            THEN 'Realizada' ELSE 'No realizada' end)as guia,
+            (SELECT CASE WHEN e.status='2' 
+            THEN 'Otorgado' ELSE 'Denegado' end) as acceso
+			FROM empleado e
+			LEFT JOIN usuario_rol ur on e.rol_id=ur.rol_id
+			LEFT JOIN division d on e.division_id=d.division_id
+			WHERE e.num_empleado like (SELECT CONCAT('%', search, '%'))
+			AND e.status>0;  
+	END CASE;
+    
+
 END$$
 
 DROP PROCEDURE IF EXISTS `sp_get_criterios`$$
@@ -2156,7 +2189,7 @@ CREATE TABLE IF NOT EXISTS `respuesta` (
   PRIMARY KEY (`respuesta_id`),
   KEY `fk_resp` (`num_empleado`),
   KEY `fk_resp_preg` (`pregunta_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=699 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=771 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `respuesta`
@@ -2673,7 +2706,79 @@ INSERT INTO `respuesta` (`respuesta_id`, `num_empleado`, `pregunta_id`, `guia_id
 (695, 22334455, 66, 3, NULL),
 (696, 22334455, 67, 3, NULL),
 (697, 22334455, 68, 3, NULL),
-(698, 22334455, 1, 1, 0);
+(698, 22334455, 1, 1, 0),
+(699, 98765432, 1, 3, 1),
+(700, 98765432, 2, 3, 3),
+(701, 98765432, 3, 3, 2),
+(702, 98765432, 4, 3, 3),
+(703, 98765432, 5, 3, 2),
+(704, 98765432, 6, 3, 3),
+(705, 98765432, 7, 3, 2),
+(706, 98765432, 8, 3, 1),
+(707, 98765432, 12, 3, 2),
+(708, 98765432, 11, 3, 1),
+(709, 98765432, 10, 3, 1),
+(710, 98765432, 9, 3, 2),
+(711, 98765432, 13, 3, 2),
+(712, 98765432, 14, 3, 1),
+(713, 98765432, 15, 3, 2),
+(714, 98765432, 16, 3, 1),
+(715, 98765432, 17, 3, 1),
+(716, 98765432, 22, 3, 1),
+(717, 98765432, 21, 3, 1),
+(718, 98765432, 20, 3, 1),
+(719, 98765432, 19, 3, 1),
+(720, 98765432, 18, 3, 1),
+(721, 98765432, 23, 3, 2),
+(722, 98765432, 24, 3, 3),
+(723, 98765432, 25, 3, 2),
+(724, 98765432, 26, 3, 2),
+(725, 98765432, 27, 3, 2),
+(726, 98765432, 28, 3, 3),
+(727, 98765432, 29, 3, 3),
+(728, 98765432, 30, 3, 2),
+(729, 98765432, 31, 3, 1),
+(730, 98765432, 32, 3, 2),
+(731, 98765432, 33, 3, 2),
+(732, 98765432, 34, 3, 2),
+(733, 98765432, 35, 3, 2),
+(734, 98765432, 36, 3, 3),
+(735, 98765432, 41, 3, 2),
+(736, 98765432, 40, 3, 2),
+(737, 98765432, 38, 3, 2),
+(738, 98765432, 39, 3, 2),
+(739, 98765432, 37, 3, 2),
+(740, 98765432, 42, 3, 2),
+(741, 98765432, 43, 3, 2),
+(742, 98765432, 44, 3, 3),
+(743, 98765432, 45, 3, 3),
+(744, 98765432, 46, 3, 3),
+(745, 98765432, 47, 3, 0),
+(746, 98765432, 48, 3, 1),
+(747, 98765432, 56, 3, 3),
+(748, 98765432, 55, 3, 3),
+(749, 98765432, 54, 3, 1),
+(750, 98765432, 53, 3, 2),
+(751, 98765432, 52, 3, 2),
+(752, 98765432, 51, 3, 2),
+(753, 98765432, 49, 3, 2),
+(754, 98765432, 50, 3, 2),
+(755, 98765432, 64, 3, 0),
+(756, 98765432, 63, 3, 1),
+(757, 98765432, 62, 3, 1),
+(758, 98765432, 61, 3, 1),
+(759, 98765432, 60, 3, 1),
+(760, 98765432, 59, 3, 1),
+(761, 98765432, 58, 3, 1),
+(762, 98765432, 57, 3, 3),
+(763, 98765432, 68, 3, 2),
+(764, 98765432, 67, 3, 0),
+(765, 98765432, 66, 3, 1),
+(766, 98765432, 65, 3, 1),
+(767, 98765432, 69, 3, 1),
+(768, 98765432, 70, 3, 2),
+(769, 98765432, 71, 3, 1),
+(770, 98765432, 72, 3, 1);
 
 -- --------------------------------------------------------
 
