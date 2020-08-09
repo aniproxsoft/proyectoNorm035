@@ -90,7 +90,7 @@ if (!isset($sesion)) {
                             <span>
                                 <strong>
                                     <h2>
-                                        Guía de Referencia I
+                                        Guías de Referencia
                                     </h2>
                                 </strong>
                                 <br/>
@@ -100,7 +100,7 @@ if (!isset($sesion)) {
                         </h4>
                         <p>
                             <strong>
-                                Cuestionario para identificara los trabajadores que fueron sujetos a acontecimientos traumaticos severos y que requieran valoración clínica.
+                                Cuestionarios para la Identificación, análisis y prevención de los Factores de riesgo psicosocial en el trabajo.
                             </strong>
                         </p>
                         <br/>

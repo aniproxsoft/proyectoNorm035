@@ -25,6 +25,7 @@ class EmpleadoDTO {
     private $db;
     private $conexion;
     private $busqueda;
+    private $guia;
     
 
 
@@ -200,6 +201,14 @@ class EmpleadoDTO {
     public function setRespuesta($respuesta)
     {
         return $this->respuesta=$respuesta;
+    }
+    public function getGuia()
+    {
+        return $this->guia;
+    }
+    public function setGuia($guia)
+    {
+        return $this->guia=$guia;
     }
 
 }

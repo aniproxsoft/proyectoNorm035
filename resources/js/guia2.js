@@ -262,7 +262,7 @@ function armarJson(pregunta_id){
 
 	var resp=$('input[name=respuesta'+pregunta_id+']:checked', '#formulario').val();
    	 
-
+	var usuario= document.getElementById("usuario").value;
    	resp_array.push({pregunta_id,resp,usuario});
    	
    	
@@ -325,7 +325,7 @@ function mandarJson(){
 
 function recibeRespuesta(respuesta){
 	alert(respuesta);
-	window.location="../../index.html";
+	location.href="../../vistas/info_sesion/cerrar_sesion.php";
 
 }
 

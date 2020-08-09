@@ -4,6 +4,26 @@
   <?php
     require_once ("../../php/controller/CtrlGuia3.php");
     require_once ("../../php/DTO/PreguntaDTO.php");
+    include '../../php/DTO/UsuarioDTO.php';
+    include '../../php/controller/CtrlEmpleados.php';
+    $ctrlEmpleados= new CtrlEmpleados();
+    $listaNivelesEstudios= $ctrlEmpleados->getNivelEstudios();
+    $divisiones=$ctrlEmpleados->getDivisiones();
+    $listaPuestos=$ctrlEmpleados->getPuestos();
+    session_start();
+    // error_reporting(0);
+    $sesion  = $_SESSION['usuario'];
+    $usuario = unserialize($sesion);
+    if (!isset($sesion)) {
+        header("Location:../../index.html");
+        die();
+    }else if(isset($sesion)){
+
+        if($usuario->getStatus()!=2){
+          header("Location:../../vistas/iniciar_sesion/acceso_denegado.php");
+
+        }
+    }
 
   ?>
       <head>
@@ -31,7 +51,8 @@
       </head>
       <body>
         
-        <input type="hidden" name="usuario" id="usuario" value="98765432">
+      
+        
           <header>
               <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
                   <a class="navbar-brand" href="#">
@@ -57,7 +78,7 @@
           <main role="main">     
         
        <main role="main">
-         
+           <input type="hidden" name="usuario" id="usuario" value="<?php echo $usuario->getNum_empleado()?>">
                 <div class="card-body-norma">
                     <center>
                         <img alt="Generic placeholder image" class="rounded mx-auto d-block" height="180" src="../../resources/img/utn_256.png" width="180">

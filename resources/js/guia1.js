@@ -184,7 +184,7 @@ function llevar_json(){
 function insertaRespuestas(res){
   
   var json_res=JSON.stringify(resp_array);
-    alert(json_res);
+    
     window.fetch("../../php/controller/CtrlRespuestas.php?json=" + encodeURIComponent(json_res)+"&opcion=1").then(respuesta => {
       if (respuesta.ok){
         return respuesta.json();
@@ -197,7 +197,7 @@ function insertaRespuestas(res){
  }
 
  function llenaForm(res){
-
+  alert(res);
   location.href="../../vistas/info_sesion/cerrar_sesion.php";
  }
 

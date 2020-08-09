@@ -4,6 +4,26 @@
   <?php
     require_once ("../../php/controller/CtrlGuia2.php");
     require_once ("../../php/DTO/PreguntaDTO.php");
+    include '../../php/controller/CtrlEmpleados.php';
+    include '../../php/DTO/UsuarioDTO.php';
+    $ctrlEmpleados= new CtrlEmpleados();
+    $listaNivelesEstudios= $ctrlEmpleados->getNivelEstudios();
+    $divisiones=$ctrlEmpleados->getDivisiones();
+    $listaPuestos=$ctrlEmpleados->getPuestos();
+    session_start();
+    // error_reporting(0);
+    $sesion  = $_SESSION['usuario'];
+    $usuario = unserialize($sesion);
+    if (!isset($sesion)) {
+        header("Location:../../index.html");
+        die();
+    }else if(isset($sesion)){
+
+        if($usuario->getStatus()!=2){
+          header("Location:../../vistas/iniciar_sesion/acceso_denegado.php");
+
+        }
+    }
 
   ?>
       <head>
@@ -31,7 +51,7 @@
       </head>
       <body>
         
-        <input type="hidden" name="usuario" id="usuario" value="260197">
+        <input type="hidden" name="usuario" id="usuario" value="<?php echo $usuario->getNum_empleado()?>">
           <header>
               <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
                   <a class="navbar-brand" href="#">

@@ -125,7 +125,7 @@ $empleados=$ctrlEmpleados->getNumEmpleados();
                 
                 <tr>
                   <th width="25%" scope="col">Numero de empleado</th>
-                  <th width="25%" scope="col">Guía</th>                
+                  <th width="25%" scope="col">Guías</th>                
                   <th width="25%" scope="col">Acceso</th>
                   <th width="25%" scope="col">Operaciones</th>
                 </tr>
@@ -178,7 +178,7 @@ $empleados=$ctrlEmpleados->getNumEmpleados();
                             <label class="sr-only" for="username">
                                 Numero de empleado
                             </label>
-                            <input autofocus="" class="form-control" id="num_empleado" maxlength="10" minlength="6" name="num_empleado" onkeypress="return solo_numeros(event);" placeholder="Numero de empleado" required="true" type="text">
+                            <input autofocus="" class="form-control" id="num_empleado" maxlength="8" minlength="6" name="num_empleado" onkeypress="return solo_numeros(event);" placeholder="Numero de empleado" required="true" type="text">
                             </input>
                             <span id="error" style="display: none;" class="text-danger">Ocurrio un error</span>
                             <span id="existe" style="display: none;" class="text-danger">El numero de empleado ya existe</span>

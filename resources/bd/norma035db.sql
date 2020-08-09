@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 07-08-2020 a las 01:39:51
+-- Tiempo de generación: 09-08-2020 a las 07:23:19
 -- Versión del servidor: 5.7.19
 -- Versión de PHP: 5.6.31
 
@@ -96,7 +96,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_autentification` (IN `empleado_n
             e.edad,e.sexo,(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
             WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,e.nivel_estudios_id,ne.nombre_estudios,
             (SELECT CASE WHEN e.status_estudios='1' THEN 'Terminada' WHEN e.status_estudios='0' THEN 'Incompleta' end) as estatus_estudios,
-            e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol,e.status
+            e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol,e.status,(SELECT sp_get_guia_faltante(empleado_num) )as guia
             from empleado e
             LEFT OUTER JOIN nivel_estudios ne on e.nivel_estudios_id=ne.nivel_estudios_id
             LEFT OUTER JOIN division d on e.division_id=d.division_id
@@ -117,7 +117,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_autentification` (IN `empleado_n
             e.edad,e.sexo,(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
             WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,e.nivel_estudios_id,'' as nombre_estudios,
             (SELECT CASE WHEN e.status_estudios='1' THEN 'Terminada' WHEN e.status_estudios='0' THEN 'Incompleta' end) as estatus_estudios,
-            e.division_id,'' as nombre_division,e.usuario_id,e.rol_id,'' as nombre_rol,e.status
+            e.division_id,'' as nombre_division,e.usuario_id,e.rol_id,'' as nombre_rol,e.status,(SELECT sp_get_guia_faltante(empleado_num) )as guia
             from empleado e;
             SELECT COUNT(*) FROM temp_empleado where num_empleado=empleado_num into count;
             IF(count>0)THEN
@@ -129,7 +129,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_autentification` (IN `empleado_n
                 null as nombre_completo,
                 null as edad,null as sexo,null as sexo_completo,null as nivel_estudios_id,null as nombre_estudios,
                 null as estatus_estudios,
-                null as division_id,null as nombre_division,null as usuario_id,null as rol_id,null as nombre_rol, null as status;
+                null as division_id,null as nombre_division,null as usuario_id,null as rol_id,null as nombre_rol, null as status, null as guia;
                 SELECT * FROM temp_empleado ;
             END IF;
 
@@ -144,13 +144,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_autentification` (IN `empleado_n
 END$$
 
 DROP PROCEDURE IF EXISTS `sp_busca_empleados`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_busca_empleados` (`search` VARCHAR(5000), `opc` INT(11))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_busca_empleados` (IN `search` VARCHAR(5000), IN `opc` INT(11))  BEGIN
 	CASE opc
 	WHEN 1 THEN
 			SELECT e.num_empleado,CONCAT(e.nombre_empleado, ' ' , e.apellidos)as nombre_completo,
 			(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
     		WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,
-    		ur.nombre_rol,d.nombre_division
+    		ur.nombre_rol,d.nombre_division,(SELECT sp_get_status_empleado_guias(e.num_empleado)) as status_guias
 			FROM empleado e
 			LEFT JOIN usuario_rol ur on e.rol_id=ur.rol_id
 			LEFT JOIN division d on e.division_id=d.division_id
@@ -208,7 +208,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_employees` (IN `opcion` VARC
         e.edad,e.sexo,(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
         WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,e.nivel_estudios_id,ne.nombre_estudios,
         (SELECT CASE WHEN e.status_estudios='1' THEN 'Terminada' ELSE 'Incompleta' end) as estatus_estudios,
-        e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol,resultado_guia1(e.num_empleado) as status_guia
+        e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol,resultado_guia1(e.num_empleado) as status_guia,(SELECT sp_get_status_empleado_guias(e.num_empleado)) as status_guias
         from empleado e
         LEFT JOIN usuario us on us.usuario_id=e.usuario_id 
         LEFT JOIN nivel_estudios ne on e.nivel_estudios_id=ne.nivel_estudios_id
@@ -220,13 +220,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_employees` (IN `opcion` VARC
         e.edad,e.sexo,(SELECT CASE WHEN UPPER(e.sexo)='M' THEN "Masculino" 
         WHEN UPPER(e.sexo)='F' THEN "Femenino" END)as sexo_completo,e.nivel_estudios_id,ne.nombre_estudios,
         (SELECT CASE WHEN e.status_estudios='1' THEN 'Terminada' ELSE 'Incompleta' end) as estatus_estudios,
-        e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol,resultado_guia1(e.num_empleado) as status_guia
+        e.division_id,d.nombre_division,e.usuario_id,e.rol_id,ur.nombre_rol,resultado_guia1(e.num_empleado) as status_guia,(SELECT sp_get_status_empleado_guias(e.num_empleado)) as status_guias
         from empleado e
         LEFT JOIN usuario us on us.usuario_id=e.usuario_id 
         LEFT JOIN nivel_estudios ne on e.nivel_estudios_id=ne.nivel_estudios_id
         LEFT JOIN division d on e.division_id=d.division_id
         LEFT JOIN usuario_rol ur on e.rol_id=ur.rol_id
-        WHERE e.status>2;
+        WHERE e.status>=2 and e.nombre_empleado is not null;
         END IF;
     END if;
 END$$
@@ -248,7 +248,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_employee_select` (IN `opcion
             LEFT JOIN division d on e.division_id=d.division_id
             LEFT JOIN usuario_rol ur on e.rol_id=ur.rol_id
             WHERE e.num_empleado=num_employee
-            and e.status=3;
+            and e.status>=2;
     END IF;
 END$$
 
@@ -263,11 +263,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_guiaResuelta` (IN `num_emple
 END$$
 
 DROP PROCEDURE IF EXISTS `sp_get_guias_contestadas`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_guias_contestadas` (`empleado_num` INT(11))  BEGIN
-    SELECT DISTINCT r.guia_id,g.guia_nombre
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_guias_contestadas` (IN `empleado_num` INT(11))  BEGIN
+    SELECT DISTINCT r.guia_id,g.guia_nombre,
+    (SELECT sp_get_status_guias_contestadas(empleado_num,r.guia_id) )as status_guia
     FROM respuesta r
     JOIN guia g on r.guia_id=g.guia_id
     WHERE r.num_empleado=empleado_num;
+
 
 END$$
 
@@ -280,7 +282,7 @@ END$$
 DROP PROCEDURE IF EXISTS `sp_get_num_eployees`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_num_eployees` ()  BEGIN
     SELECT  e.num_empleado,(SELECT CASE WHEN e.status='3' 
-                        THEN 'Realizada' ELSE 'No realizada' end)as guia,
+                        THEN 'Todas Realizadas' ELSE 'Faltan por Realizar' end)as guia,
                         (SELECT CASE WHEN e.status='2' 
                         THEN 'Otorgado' ELSE 'Denegado' end) as acceso
     FROM empleado e
@@ -522,8 +524,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_empleado` (IN `jsonEmplea
                         rol_id=(Select replace(JSON_EXTRACT(jsonEmpleado, CONCAT('$[',_index,'].puesto')), '"', '')),
                         antiguedad_puesto=STR_TO_DATE((Select replace(JSON_EXTRACT(jsonEmpleado, CONCAT('$[',_index,'].antiguedad_puesto')), '"', '')),'%d-%m-%Y'),
                         fecha_antiguedad=STR_TO_DATE((Select replace(JSON_EXTRACT(jsonEmpleado, CONCAT('$[',_index,'].fecha_antiguedad')), '"', '')),'%d-%m-%Y'),
-status='3'
-                        
+                        status='2'
                     WHERE num_empleado=(Select replace(JSON_EXTRACT(jsonEmpleado, CONCAT('$[',_index,'].usuario')), '"', ''));
                     SET COUNT = (select ROW_count());
                         if(COUNT>0)then
@@ -710,6 +711,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_respuestas_guia_3` (IN `j
                             SET _index2 := _index2 + 1; 
                         END WHILE; 
 
+                        UPDATE empleado SET
+                        status='3'
+                        WHERE num_empleado=empleado_num;
+
 
 
 
@@ -804,21 +809,21 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `resultado_guia1` (`idEmpleado` INT(1
 	DECLARE cont_iii integer(2);
 	DECLARE cont_iv integer(2);
 
-	SELECT valor_respuesta FROM respuesta r 
-	INNER JOIN pregunta p ON r.pregunta_id= p.pregunta_id
-	WHERE valor_respuesta=0 AND (p.seccion_id=1 and p.guia_id=1) AND num_empleado=idEmpleado into contador;
+	SELECT r.valor_respuesta FROM respuesta r 
+	INNER JOIN pregunta p ON r.pregunta_id= p.pregunta_id and p.guia_id=1
+	WHERE (valor_respuesta=0 AND p.seccion_id=1) and (num_empleado=idEmpleado  and r.guia_id=1) into contador;
 
 	SELECT COUNT(valor_respuesta) FROM respuesta r
-	INNER JOIN pregunta p ON p.pregunta_id= r.pregunta_id
-	WHERE valor_respuesta=1 AND (p.seccion_id=2 and p.guia_id=1) AND num_empleado=idEmpleado into cont_ii;
+	INNER JOIN pregunta p ON p.pregunta_id= r.pregunta_id and p.guia_id=1
+	WHERE valor_respuesta=1 AND (p.seccion_id=2 and r.guia_id=1) AND num_empleado=idEmpleado into cont_ii;
 
 	SELECT COUNT(valor_respuesta) FROM respuesta r
-	INNER JOIN pregunta p ON p.pregunta_id= r.pregunta_id
-	WHERE valor_respuesta=1 AND (p.seccion_id=3 and p.guia_id=1) AND num_empleado=idEmpleado into cont_iii;
+	INNER JOIN pregunta p ON p.pregunta_id= r.pregunta_id and p.guia_id=1
+	WHERE valor_respuesta=1 AND (p.seccion_id=3 and r.guia_id=1) AND num_empleado=idEmpleado into cont_iii;
 
 	SELECT COUNT(valor_respuesta) FROM respuesta r
-	INNER JOIN pregunta p ON p.pregunta_id= r.pregunta_id
-	WHERE valor_respuesta=1 AND (p.seccion_id=4 and p.guia_id=1) AND num_empleado=idEmpleado into cont_iv;
+	INNER JOIN pregunta p ON p.pregunta_id= r.pregunta_id and p.guia_id=1
+	WHERE valor_respuesta=1 AND (p.seccion_id=4 and r.guia_id=1) AND num_empleado=idEmpleado into cont_iv;
 
 	IF(contador=0)THEN
 		set msj="El Tabajador No Requiere de Valoración Clínica";
@@ -1307,6 +1312,8 @@ DECLARE resultado varchar(500);
         set resultado='Alto';
     WHEN total >=90 THEN
         set resultado='Muy Alto';
+    ELSE 
+    	set resultado='No hay registro';
     END CASE;
     
     RETURN resultado;
@@ -1327,6 +1334,8 @@ DECLARE resultado varchar(500);
         set resultado='Alto';
     WHEN total >=140 THEN
         set resultado='Muy Alto';
+    ELSE 
+    	set resultado='No hay registro';
     END CASE;
     
     RETURN resultado;
@@ -1466,6 +1475,105 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_exists_pregunta_guia_3` (`id_
     END IF;
 
     RETURN respuesta;
+
+END$$
+
+DROP FUNCTION IF EXISTS `sp_get_guia_faltante`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_guia_faltante` (`empleado_num` INT(11)) RETURNS INT(11) BEGIN
+
+DECLARE resultado INT(11) ;
+DECLARE contador INT(11);
+	
+	SELECT count(*) FROM respuesta r 
+	WHERE r.num_empleado=empleado_num and guia_id=1 into contador;
+
+ 	IF(contador=0)THEN
+ 		set resultado=1;
+ 	ELSE
+ 		SELECT count(*) FROM respuesta r 
+		WHERE r.num_empleado=empleado_num and guia_id=2 into contador;
+		IF(contador=0)THEN
+			set resultado=2;
+		ELSE 
+			SELECT count(*) FROM respuesta r 
+			WHERE r.num_empleado=empleado_num and guia_id=3 into contador;
+			IF(contador=0)THEN
+				set resultado=3;
+			ELSE 
+				set resultado=0;
+			END IF;
+		END IF;
+ 	END IF;
+
+  
+
+   RETURN resultado;
+
+END$$
+
+DROP FUNCTION IF EXISTS `sp_get_status_empleado_guias`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_status_empleado_guias` (`empleado_num` INT(11)) RETURNS TINYINT(1) BEGIN
+DECLARE valor_respuesta varchar(500);
+DECLARE guia1 varchar(500);
+DECLARE guia2 varchar(500);
+DECLARE guia3 varchar(500);
+DECLARE resultado boolean;
+	
+	SELECT resultado_guia1(empleado_num) into guia1;
+  	SELECT SUM(r.valor_respuesta)
+        FROM respuesta r
+        WHERE r.num_empleado = empleado_num and r.guia_id=2 into valor_respuesta;
+   SELECT sp_get_calificacion_final(valor_respuesta) into guia2;
+   SELECT SUM(r.valor_respuesta)as resultado 
+        FROM respuesta r
+        WHERE r.num_empleado = empleado_num and r.guia_id=3 into valor_respuesta;
+   SELECT sp_get_calificacion_final_guia3(valor_respuesta) into guia3;
+   
+   IF (guia1='El Trabajador REQUIERE de Valoración Clínica')THEN
+   		set resultado=true;
+   ELSE  IF (guia2='Medio' or guia2='Alto' or guia2='Muy Alto')THEN
+   			set resultado=true;
+   		ELSE  IF (guia3='Medio' or guia3='Alto' or guia3='Muy Alto')THEN
+   			set resultado=true;
+   			ELSE
+   			 	set resultado=false;
+   			END IF;
+   		END IF;
+   END IF;
+  
+ 
+  
+
+   RETURN resultado;
+
+END$$
+
+DROP FUNCTION IF EXISTS `sp_get_status_guias_contestadas`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `sp_get_status_guias_contestadas` (`empleado_num` INT(11), `id_guia` INT(11)) RETURNS VARCHAR(500) CHARSET latin1 BEGIN
+
+DECLARE resultado varchar(500);
+DECLARE valor_respuesta INT(11);
+	
+	CASE id_guia
+	WHEN 1 THEN
+		set resultado=(SELECT resultado_guia1(empleado_num));
+	WHEN 2 THEN
+		SELECT SUM(r.valor_respuesta)
+        FROM respuesta r
+        WHERE r.num_empleado = empleado_num and r.guia_id=2 into valor_respuesta;
+		set resultado=(SELECT sp_get_calificacion_final(valor_respuesta));
+	WHEN 3 THEN
+		SELECT SUM(r.valor_respuesta)as resultado 
+        FROM respuesta r
+        WHERE r.num_empleado = empleado_num and r.guia_id=3 into valor_respuesta;
+		set resultado=(SELECT sp_get_calificacion_final_guia3(valor_respuesta) );
+	ELSE 
+		set resultado='Guia no implementada';
+	END CASE;		
+ 
+  
+
+   RETURN resultado;
 
 END$$
 
@@ -1927,7 +2035,7 @@ CREATE TABLE IF NOT EXISTS `empleado` (
   KEY `FK_division` (`division_id`),
   KEY `FK_usuario` (`usuario_id`),
   KEY `rol_id` (`rol_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=98765433 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2147483647 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `empleado`
@@ -1942,8 +2050,12 @@ INSERT INTO `empleado` (`num_empleado`, `nombre_empleado`, `apellidos`, `edad`, 
 (12345679, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
 (12345688, 'María de los Santos', 'Mexica Rivera', 56, 'F', 7, '1', 2, NULL, 2, '2007-04-05', '2007-04-05', '2'),
 (22334455, 'Gilberto', 'Pacheco Gallegos', 43, 'M', 7, '1', 2, NULL, 2, '2010-08-06', '2010-08-07', '3'),
+(22993388, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
 (87654321, 'Enrrique', 'Perez Sulivan', 67, 'M', 2, '1', 1, NULL, 2, '2020-06-03', '2020-06-01', '0'),
-(98765432, 'Luisa ', 'Puebla', 34, 'F', 6, '1', 2, NULL, 2, '2012-02-02', '2012-02-02', '3');
+(87879797, 'Cristian', 'Jimenez', 54, 'M', 8, '1', 4, NULL, 2, '1992-08-08', '2007-08-08', '0'),
+(97978787, 'Jonatan', 'Rodriguez', 23, 'M', 8, '1', 5, NULL, 2, '2019-09-09', '2019-09-09', '3'),
+(98765432, 'Luisa ', 'Puebla', 34, 'F', 6, '1', 2, NULL, 2, '2012-02-02', '2012-02-02', '3'),
+(98987676, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0');
 
 -- --------------------------------------------------------
 
@@ -2121,7 +2233,7 @@ INSERT INTO `pregunta` (`pregunta_id`, `guia_id`, `seccion_id`, `pregunta_desc`)
 (33, 2, 6, 'En mi trabajo puedo expresarme libremente sin interrupciones.'),
 (33, 3, 8, 'Me explican claramente los objetivos de mi trabajo'),
 (34, 2, 6, 'Recibo criticas constantes a mi persona y/o trabajo.'),
-(34, 3, 8, 'Me informan con quién puedo resolver probloemas o asuntos de ytrabajo'),
+(34, 3, 8, 'Me informan con quién puedo resolver probloemas o asuntos de trabajo'),
 (35, 2, 6, 'Recibo burlas,calumnias, difamaciones,humillaciones o rídiculizaciones.'),
 (35, 3, 8, 'Me permiten asistir a capacitaciones relacionadas con mi trabajo'),
 (36, 2, 6, 'Se ignora mi presencia o se me excluye de las reuniones de trabajo y en la toma de decisiones.'),
@@ -2189,7 +2301,7 @@ CREATE TABLE IF NOT EXISTS `respuesta` (
   PRIMARY KEY (`respuesta_id`),
   KEY `fk_resp` (`num_empleado`),
   KEY `fk_resp_preg` (`pregunta_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=771 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=898 DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `respuesta`
@@ -2227,7 +2339,6 @@ INSERT INTO `respuesta` (`respuesta_id`, `num_empleado`, `pregunta_id`, `guia_id
 (29, 22334455, 13, 1, 0),
 (30, 22334455, 14, 1, 0),
 (31, 22334455, 15, 1, 0),
-(32, 87654321, 1, 0, 0),
 (34, 22334455, 1, 2, 1),
 (35, 22334455, 2, 2, 1),
 (36, 22334455, 3, 2, 0),
@@ -2604,36 +2715,6 @@ INSERT INTO `respuesta` (`respuesta_id`, `num_empleado`, `pregunta_id`, `guia_id
 (525, 12345678, 70, 3, 0),
 (526, 12345678, 71, 3, 0),
 (527, 12345678, 72, 3, 0),
-(528, 12345678, 1, 1, 1),
-(529, 12345678, 2, 1, 1),
-(530, 12345678, 3, 1, 0),
-(531, 12345678, 4, 1, 0),
-(532, 12345678, 5, 1, 1),
-(533, 12345678, 6, 1, 0),
-(534, 12345678, 7, 1, 0),
-(535, 12345678, 8, 1, 0),
-(536, 12345678, 9, 1, 0),
-(537, 12345678, 10, 1, 0),
-(538, 12345678, 11, 1, 0),
-(539, 12345678, 12, 1, 0),
-(540, 12345678, 13, 1, 1),
-(541, 12345678, 14, 1, 1),
-(542, 12345678, 15, 1, 1),
-(543, 22334455, 1, 1, 1),
-(544, 22334455, 2, 1, 0),
-(545, 22334455, 3, 1, 1),
-(546, 22334455, 4, 1, 1),
-(547, 22334455, 5, 1, 0),
-(548, 22334455, 6, 1, 0),
-(549, 22334455, 7, 1, 1),
-(550, 22334455, 8, 1, 0),
-(551, 22334455, 9, 1, 1),
-(552, 22334455, 10, 1, 0),
-(553, 22334455, 11, 1, 1),
-(554, 22334455, 12, 1, 0),
-(555, 22334455, 13, 1, 1),
-(556, 22334455, 14, 1, 0),
-(557, 22334455, 15, 1, 1),
 (626, 22334455, 1, 3, 2),
 (627, 22334455, 2, 3, 1),
 (628, 22334455, 3, 3, 1),
@@ -2706,7 +2787,6 @@ INSERT INTO `respuesta` (`respuesta_id`, `num_empleado`, `pregunta_id`, `guia_id
 (695, 22334455, 66, 3, NULL),
 (696, 22334455, 67, 3, NULL),
 (697, 22334455, 68, 3, NULL),
-(698, 22334455, 1, 1, 0),
 (699, 98765432, 1, 3, 1),
 (700, 98765432, 2, 3, 3),
 (701, 98765432, 3, 3, 2),
@@ -2778,7 +2858,126 @@ INSERT INTO `respuesta` (`respuesta_id`, `num_empleado`, `pregunta_id`, `guia_id
 (767, 98765432, 69, 3, 1),
 (768, 98765432, 70, 3, 2),
 (769, 98765432, 71, 3, 1),
-(770, 98765432, 72, 3, 1);
+(770, 98765432, 72, 3, 1),
+(775, 97978787, 1, 1, 0),
+(780, 97978787, 1, 2, 0),
+(781, 97978787, 2, 2, 0),
+(782, 97978787, 3, 2, 0),
+(783, 97978787, 4, 2, 0),
+(784, 97978787, 5, 2, 1),
+(785, 97978787, 6, 2, 1),
+(786, 97978787, 7, 2, 1),
+(787, 97978787, 8, 2, 1),
+(788, 97978787, 9, 2, 1),
+(789, 97978787, 10, 2, 0),
+(790, 97978787, 11, 2, 1),
+(791, 97978787, 12, 2, 2),
+(792, 97978787, 13, 2, 0),
+(793, 97978787, 14, 2, 0),
+(794, 97978787, 15, 2, 1),
+(795, 97978787, 16, 2, 0),
+(796, 97978787, 17, 2, 0),
+(797, 97978787, 18, 2, 1),
+(798, 97978787, 19, 2, 1),
+(799, 97978787, 20, 2, 0),
+(800, 97978787, 21, 2, 0),
+(801, 97978787, 22, 2, 1),
+(802, 97978787, 23, 2, 0),
+(803, 97978787, 24, 2, 1),
+(804, 97978787, 25, 2, 1),
+(805, 97978787, 26, 2, 0),
+(806, 97978787, 27, 2, 1),
+(807, 97978787, 28, 2, 1),
+(808, 97978787, 29, 2, 1),
+(809, 97978787, 30, 2, 1),
+(810, 97978787, 31, 2, 0),
+(811, 97978787, 32, 2, 1),
+(812, 97978787, 33, 2, 1),
+(813, 97978787, 34, 2, 0),
+(814, 97978787, 35, 2, 1),
+(815, 97978787, 36, 2, 0),
+(816, 97978787, 37, 2, 1),
+(817, 97978787, 38, 2, 1),
+(818, 97978787, 39, 2, 1),
+(819, 97978787, 40, 2, 1),
+(820, 97978787, 41, 2, NULL),
+(821, 97978787, 42, 2, NULL),
+(822, 97978787, 43, 2, NULL),
+(823, 97978787, 44, 2, NULL),
+(824, 97978787, 45, 2, NULL),
+(825, 97978787, 46, 2, NULL),
+(826, 97978787, 1, 3, 1),
+(827, 97978787, 2, 3, 0),
+(828, 97978787, 3, 3, 0),
+(829, 97978787, 4, 3, 1),
+(830, 97978787, 5, 3, 0),
+(831, 97978787, 6, 3, 1),
+(832, 97978787, 7, 3, 1),
+(833, 97978787, 8, 3, 0),
+(834, 97978787, 9, 3, 1),
+(835, 97978787, 10, 3, 1),
+(836, 97978787, 11, 3, 1),
+(837, 97978787, 12, 3, 0),
+(838, 97978787, 13, 3, 1),
+(839, 97978787, 14, 3, 0),
+(840, 97978787, 15, 3, 0),
+(841, 97978787, 16, 3, 1),
+(842, 97978787, 17, 3, 1),
+(843, 97978787, 18, 3, 1),
+(844, 97978787, 19, 3, 1),
+(845, 97978787, 20, 3, 1),
+(846, 97978787, 21, 3, 0),
+(847, 97978787, 22, 3, 0),
+(848, 97978787, 23, 3, 1),
+(849, 97978787, 24, 3, 1),
+(850, 97978787, 25, 3, 1),
+(851, 97978787, 26, 3, 0),
+(852, 97978787, 27, 3, 1),
+(853, 97978787, 28, 3, 1),
+(854, 97978787, 29, 3, 1),
+(855, 97978787, 30, 3, 0),
+(856, 97978787, 31, 3, 4),
+(857, 97978787, 32, 3, 1),
+(858, 97978787, 33, 3, 0),
+(859, 97978787, 34, 3, 0),
+(860, 97978787, 35, 3, 1),
+(861, 97978787, 36, 3, 0),
+(862, 97978787, 37, 3, 1),
+(863, 97978787, 38, 3, 0),
+(864, 97978787, 39, 3, 0),
+(865, 97978787, 40, 3, 1),
+(866, 97978787, 41, 3, 1),
+(867, 97978787, 42, 3, 0),
+(868, 97978787, 43, 3, 1),
+(869, 97978787, 44, 3, 0),
+(870, 97978787, 45, 3, 0),
+(871, 97978787, 46, 3, 0),
+(872, 97978787, 47, 3, 0),
+(873, 97978787, 48, 3, 1),
+(874, 97978787, 49, 3, 1),
+(875, 97978787, 50, 3, 1),
+(876, 97978787, 51, 3, 1),
+(877, 97978787, 52, 3, 0),
+(878, 97978787, 53, 3, 1),
+(879, 97978787, 54, 3, 3),
+(880, 97978787, 55, 3, 1),
+(881, 97978787, 56, 3, 1),
+(882, 97978787, 57, 3, 2),
+(883, 97978787, 58, 3, 1),
+(884, 97978787, 59, 3, 0),
+(885, 97978787, 60, 3, 1),
+(886, 97978787, 61, 3, 1),
+(887, 97978787, 62, 3, 1),
+(888, 97978787, 63, 3, 1),
+(889, 97978787, 64, 3, 0),
+(890, 97978787, 65, 3, NULL),
+(891, 97978787, 66, 3, NULL),
+(892, 97978787, 67, 3, NULL),
+(893, 97978787, 68, 3, NULL),
+(894, 97978787, 69, 3, NULL),
+(895, 97978787, 70, 3, NULL),
+(896, 97978787, 71, 3, NULL),
+(897, 97978787, 72, 3, NULL);
 
 -- --------------------------------------------------------
 

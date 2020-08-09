@@ -1,6 +1,20 @@
   <?php
     require_once '../../php/controller/CtrlEmpleados.php';
     $ctrlEmpleados= new CtrlEmpleados();
+    include '../../php/DTO/UsuarioDTO.php';
+header("Content-Type: text/html;charset=utf-8");
+session_start();
+// error_reporting(0);
+$sesion  = $_SESSION['usuario'];
+$usuario = unserialize($sesion);
+if (!isset($sesion)) {
+    header("Location:../../vistas/iniciar_sesion/iniciar_sesion.html");
+    die();
+}else if(isset($sesion)){
+    if(!($usuario->getRol_id()==1)){
+        header("Location:../../vistas/iniciar_sesion/acceso_denegado.php");
+    }
+}
 
     $num_empleado=base64_decode(filter_input(INPUT_GET, "num"));
     $empleado=$ctrlEmpleados->getEmpleadoSeleccionado($num_empleado);
@@ -46,12 +60,19 @@
                   </button>
                   <div class="collapse navbar-collapse" id="navbarsExampleDefault">
                       <ul class="navbar-nav mr-auto">
-                          <li class="nav-item">
-                              <!--<a class="nav-link active" href="emp_index.php">
+                        <li class="nav-item">
+                            <a class="nav-link" href="adm_index.php">
                                 Inicio
-                              </a>-->
-                          </li>
-                      </ul>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="empleados.php">Empleados</a>
+                        </li>
+                    
+                        <li class="nav-item">
+                            <a class="nav-link" href="permisos.php">Permisos de usuario</a>
+                        </li>
+                    </ul>
                     <!--  <a class="btn btn-primary" href="../../vistas/iniciar_sesion/iniciar_sesion.html">
                           Ingresar </a>-->
                   </div>

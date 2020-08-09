@@ -379,7 +379,7 @@ function mandarJson(){
 
 function recibeRespuesta(respuesta){
 	alert(respuesta);
-	window.location="../../index.html";
+	location.href="../../vistas/info_sesion/cerrar_sesion.php";
 
 }
 

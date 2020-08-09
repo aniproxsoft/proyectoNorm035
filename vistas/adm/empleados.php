@@ -90,7 +90,12 @@ $empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
         <hr>
         <div class="card">
           
-          <h4 class="card-header"><strong>Empleados</strong></h4>              
+          <h4 class="card-header"><strong>Empleados</strong></h4> 
+          <p><svg version='1.1'  xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 120 120'><circle cx='60' cy='60' r='15'
+                fill='Green' /></svg><strong style="color: black">Sin Riesgo</strong>
+            <svg version='1.1'  xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 120 120'><circle cx='60' cy='60' r='15'
+                fill='Red' /></svg><strong style="color: black">Riesgo</strong>
+          </p>      
           <hr>
           <div class="card-body">     
             <div class="row">
@@ -120,18 +125,32 @@ $empleados=$ctrlEmpleados->getEmpleadosSinAdmin();
             echo "<div class='row' style='color: black'>
           
           <div class='col-md-9'>
-            <h4>".$empleados[$i]['nombre_completo']."</h4>
-            <h5 class='card-title'><strong>".$empleados[$i]['num_empleado']." </strong> </h5>
+            <h4>".$empleados[$i]['nombre_completo'];
+              if ($empleados[$i]['status_guias']==1) {
+                echo "<svg version='1.1'  xmlns='http://www.w3.org/2000/svg'width='120' height='60' viewBox='0 0 120 120'><circle cx='60' cy='60' r='15'
+                fill='Red' />"."</svg></h4>";
+
+                
+            } else{
+               echo "<svg version='1.1'  xmlns='http://www.w3.org/2000/svg'width='120' height='60' viewBox='0 0 120 120'><circle cx='60' cy='60' r='15'
+                fill='Green' />"."</svg></h4>";
+ 
+            }
+            
+            echo "<h5 class='card-title'><strong>".$empleados[$i]['num_empleado']." </strong> </h5>
             <h6 class='card-title'><strong>".$empleados[$i]['nombre_rol']." </strong> </h6>
             <h6 class='card-title'><strong>División: </strong> <span>".$empleados[$i]['nombre_division']."</span></h6>                
             <p>Sexo: ".$empleados[$i]['sexo_completo']."</p>";
 
-            if ($empleados[$i]['status_guia']=="El Trabajador REQUIERE de Valoración Clínica") {
+            /*if ($empleados[$i]['status_guia']=="El Trabajador REQUIERE de Valoración Clínica") {
                 echo "<h5 class='card-title' style='color: red'><strong>".$empleados[$i]['status_guia']." </strong> </h5>";
             } elseif ($empleados[$i]['status_guia']=="El Tabajador No Requiere de Valoración Clínica") {
                 echo "<h5 class='card-title' style='color: green'><strong>".$empleados[$i]['status_guia']." </strong> </h5>";
             }
+            */
+
             
+                
                 
             
             

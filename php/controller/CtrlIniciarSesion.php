@@ -46,6 +46,7 @@ $usuario->setUsuario_id($respuesta[0]["usuario_id"]);
 $usuario->setRol_id($respuesta[0]["rol_id"]);
 $usuario->setNombre_rol($respuesta[0]["nombre_rol"]);
 $usuario->setStatus($respuesta[0]["status"]);
+$usuario->setGuia($respuesta[0]["guia"]);
 
 }catch(PDOException $e){
 	echo 'Error conectando con la base de datos: ' . $e->getMessage();
@@ -59,13 +60,28 @@ if ($usuario->getFlag() == 1 and $usuario->getRol_id() == 1) {
 } else if($usuario->getFlag() == 1 and $usuario->getStatus() == 2  ){
 	session_start();
 	$_SESSION['usuario'] = serialize($usuario);
-    header("Location:../../vistas/emp/guia1.php");
+    $url='';
+    switch ($usuario->getGuia()) {
+    	case 1:
+    		$url='guia1.php';
+    		break;
+    	case 2:
+    		$url='guia2.php';
+    		break;
+    	
+    	case 3:
+    		$url='guia3.php';
+    		break;
+    }
+
+
+    header("Location:../../vistas/emp/".$url);
 }else {
 	if($opc==1){
 			echo '<script type="text/javascript">alert("Error, contraseña y/o usuario incorrecto");location.href="../../vistas/iniciar_sesion/iniciar_sesion.html";</script>';
 	}elseif ($opc==2) {
 		if($usuario->getStatus()==3){
-			echo '<script type="text/javascript">alert("Este usuario ya realizó la Guía ");location.href="../../index.html";</script>';
+			echo '<script type="text/javascript">alert("Este usuario ya realizó todas las Guías ");location.href="../../index.html";</script>';
 		}elseif($usuario->getStatus()==1){
 			echo '<script type="text/javascript">alert("No tiene permiso de realizar la Guía");location.href="../../index.html";</script>';
 		}else{

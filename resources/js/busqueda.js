@@ -35,8 +35,15 @@ function llenaTablaEmp(respuesta){
 
 				formulario+="<div class='row' style='color: black'>"+
         			"<div class='col-md-9'>"+
-            		"<h4>"+respuesta[i]['nombre_completo']+"</h4>"+
-            		"<h5 class='card-title'><strong>"+respuesta[i]['num_empleado']+" </strong> </h5>"+
+            		"<h4>"+respuesta[i]['nombre_completo'];
+                     if (respuesta[i]['status_guias']==1) {
+                        formulario+="<svg version='1.1'  xmlns='http://www.w3.org/2000/svg'width='120' height='60' viewBox='0 0 120 120'><circle cx='60' cy='60' r='15'"+
+                        "fill='Red' />"+"</svg></h4>";
+                    } else{
+                        formulario+="<svg version='1.1'  xmlns='http://www.w3.org/2000/svg'width='120' height='60' viewBox='0 0 120 120'><circle cx='60' cy='60' r='15'"+
+                        "fill='Green' />"+"</svg></h4>"
+                    }
+                    formulario+="<h5 class='card-title'><strong>"+respuesta[i]['num_empleado']+" </strong> </h5>"+
             		"<h6 class='card-title'><strong>"+respuesta[i]['nombre_rol']+" </strong> </h6>"+
             		"<h6 class='card-title'><strong>División: </strong> <span>"+respuesta[i]['nombre_division']+"</span></h6>"+                
             		"<p>Sexo: "+respuesta[i]['sexo_completo']+"</p>"

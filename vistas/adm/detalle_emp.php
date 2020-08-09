@@ -186,8 +186,18 @@ $guiasResueltas=$ctrlEmpleados->getGuiasResueltas($num_empleado);
               
            </div>
            <hr>
-              <strong>Guias Realizadas</strong>
+              <div class="row">
+                <div class='col-md-2'>
+                  <strong>Guias Realizadas</strong>
+                </div>
+                <div class='col-md-6'>
+                  <strong>Resultado </strong>
+                </div>
+                
+              </div>
+              
               <br>
+              
               <?php
                 $url="";
                 foreach($guiasResueltas as $guia){
@@ -205,14 +215,44 @@ $guiasResueltas=$ctrlEmpleados->getGuiasResueltas($num_empleado);
                   }
                   
                     
+                  $color ='';
                   
-                  echo "<a href='".$url."' class='form-text' style='color: blue'
-                                     title='Ver el detalle'>".$guia['guia_nombre']."</a>";
+                  
+                  switch ($guia['status_guia']) {
+                    case 'El Trabajador REQUIERE de Valoración Clínica':
+                      $color='color:red';
+                    break;
+                    case 'Alto':
+                      $color='color:#fcc404';
+                    break;
+                    case 'Muy Alto':
+                      $color='color:#fc0404;';
+                    break;
+                    case 'Medio':
+                      $color= 'color:#BFD404;';
+                    break;
+                    case 'Bajo':
+                      $color= 'color: #50B550;';
+                    break;
+                    case 'Nulo o despreciable':
+                      $color='color: #00CCF4;';
+                    break;
+                    default:
+                      $color= "color:green";
+                    break;
+                    
+                    
+                  }
+                  $componente='';
+                  $componente= "<div class='row'><div class='col-md-2'><a href='".$url."' class='form-text' style='color: blue'
+                                     title='Ver el detalle'>".$guia['guia_nombre']."</a></div>".
+                                     "<div class='col-md-6'><strong style='".$color."'>".$guia['status_guia']."</strong></div></div>";
+                  
+                  echo $componente;
                 }
 
               ?>
 
-             
           </div>
         </div>
       </div> <!-- /container -->
