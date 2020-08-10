@@ -3,10 +3,10 @@ require_once "../../php/conexion/ClassConnection.php";
 class CtrlResultados {
  	private $db       = null;
  	private $conexion = null;
- 	private $categorias=null;
- 	private $global=null;
- 	private $dominio=null;
- 	private $crieterios=null;
+ 	private $categorias= array();
+ 	private $global= array();
+ 	private $dominio= array();
+ 	private $crieterios= array();
 
  	public function __construct(){}
 
@@ -86,7 +86,9 @@ class CtrlResultados {
  		try {
  			$this->db       = new connectionDB();
  			$this->conexion = $this->db->get_connection();
-			$statement = $this->conexion->prepare("CALL sp_get_criterios()");
+			$statement = $this->conexion->prepare("CALL sp_get_criterios(?)");
+			$valor=1;
+			$statement->bindParam(1,$valor);
 			$statement->execute();
 
 			while($row=$statement->fetch(PDO::FETCH_ASSOC)){

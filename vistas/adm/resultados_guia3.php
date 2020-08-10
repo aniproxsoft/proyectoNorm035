@@ -1,8 +1,8 @@
  <?php
     require_once '../../php/controller/CtrlEmpleados.php';
-     require_once '../../php/controller/ctrlResultados3.php';
+     
      include '../../php/DTO/UsuarioDTO.php';
-header("Content-Type: text/html;charset=utf-8");
+
 session_start();
 // error_reporting(0);
 $sesion  = $_SESSION['usuario'];
@@ -16,14 +16,14 @@ if (!isset($sesion)) {
     }
 }
     $ctrlEmpleados= new CtrlEmpleados();
-    $ctrlResultados= new ctrlResultados();
+  
 
     $num_empleado=base64_decode(filter_input(INPUT_GET, "num"));
    
     $empleado=$ctrlEmpleados->getEmpleadoSeleccionado($num_empleado);
-    $global=$ctrlResultados->getResultadosGlobalGuia3($num_empleado);
-    $categorias=$ctrlResultados->getResultadosCategoriaGuia3($num_empleado);
-    $dominios=$ctrlResultados->getResultadosDominioGuia3($num_empleado);
+    $global=$ctrlEmpleados->getResultadosGlobalGuia3($num_empleado);
+    $categorias=$ctrlEmpleados->getResultadosCategoriaGuia3($num_empleado);
+    $dominios=$ctrlEmpleados->getResultadosDominioGuia3($num_empleado);
 
   ?>
   <!DOCTYPE doctype html>
