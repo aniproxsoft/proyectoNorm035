@@ -81,7 +81,9 @@ if ($usuario->getFlag() == 1 and $usuario->getRol_id() == 1) {
 			echo '<script type="text/javascript">alert("Error, contraseña y/o usuario incorrecto");location.href="../../vistas/iniciar_sesion/iniciar_sesion.html";</script>';
 	}elseif ($opc==2) {
 		if($usuario->getStatus()==3){
-			echo '<script type="text/javascript">alert("Este usuario ya realizó todas las Guías ");location.href="../../index.html";</script>';
+            session_start();
+            $_SESSION['usuario'] = serialize($usuario);
+			header("Location:../../vistas/emp/guia4.php");
 		}elseif($usuario->getStatus()==1){
 			echo '<script type="text/javascript">alert("No tiene permiso de realizar la Guía");location.href="../../index.html";</script>';
 		}else{

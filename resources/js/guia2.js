@@ -2,6 +2,7 @@ alert("Una vez contestada una pregunta NO PODRÁS CAMBIAR LA RESPUESTA");
 resp_array=[];
 var json_res;
 var status=0;
+//Funcion que permite reaizar la guia en caso que se cierre un modal
 function contestar(){
 	$("#seccionModal").modal({backdrop: 'static', keyboard: false});
 }
@@ -15,7 +16,8 @@ window.fetch("../../php/controller/CtrlGuia2.php?opcion=seccion"
      throw new Error(respuesta.statusText);
    }
  }).then(respuesta => getSeccion(respuesta,0)).catch(e => alert(e));
-             
+ 
+//Funcion que muestra las seccioes y valida que se hayan contestado todas las preguntas de cada sección            
 function getSeccion(respuesta,valor){
 	switch(valor+1){
 		case 1:
@@ -99,7 +101,7 @@ function getSeccion(respuesta,valor){
     
    	  
 }
-
+//Función que muestra el modal con las secciones de las preguntas
 function muestraModalSeccion(respuesta,valor){
 	$('#titulo').remove();
     $('#desc').remove();
@@ -121,6 +123,7 @@ function muestraModalSeccion(respuesta,valor){
 	}
 }
 
+//Funcion que pide al php las preguntas de la sección correspondiente
 function getPreguntas(seccion,status){
 	this.status=status;
 	document.getElementById("contestar").style.display="none";
@@ -137,6 +140,7 @@ function getPreguntas(seccion,status){
 	
 }
 
+//Funcion que muestra las preguntas en el modal
 function llenaPreguntas(respuesta,seccion){
 	$('#preguntas').remove();
 	
@@ -178,12 +182,13 @@ function llenaPreguntas(respuesta,seccion){
 	
 }
 
+//Función que hace la animación de bajar cuando se va a guardar las respuestas
 function bajar(){
 	
 	$('html, body').animate({scrollTop: 400}, 'slow');
 }
 
-
+//Función que se ejecuta al dar clic en el botón siguiente y asi mostrar las secciones que siguen
 function siguiente(valor){
 
 
@@ -198,6 +203,7 @@ window.fetch("../../php/controller/CtrlGuia2.php?opcion=seccion"
  }).then(respuesta => getSeccion(respuesta,(valor-1)).catch(e => alert(e)));
 }
 
+//Función que valida la seccion con respuesta si/no
 function validarSeccion(respuesta,valor){
 
 			$('#titulo').remove();
@@ -216,6 +222,8 @@ function validarSeccion(respuesta,valor){
     		$('#botones_modal').append("<div id='botones'>"+botones+"</div>"); 
 			
 }
+
+//Función que muestra la seccion con respuesta si/no
 
 function getModal2(valor){
 	status=0;
@@ -268,7 +276,7 @@ function armarJson(pregunta_id){
    	
                 
 }
-
+//Funcion que se ejecut al dar clic en respuesta no
 function respuestaNo(status){
 	$('#botonSiguiente').remove();
 	$('#boton').append("<button id='botonGuardar' type='button' class='btn btn-primary'"+ 
@@ -281,7 +289,7 @@ function respuestaNo(status){
 }
 
 
-
+//Función que se ejecuta al dar clic en guardar
 function guardar(){
 	if (status==1) {
 		if (validaPreguntas()) {
@@ -303,7 +311,7 @@ function guardar(){
 	
 }
 
-
+//Manda el json a la clase php para que las respuestas se guarden en la base de datos
 function mandarJson(){
 
 
@@ -322,7 +330,7 @@ function mandarJson(){
 
 
 
-
+//Cuando todo salio correcto al guardarse en la base de datos se ejecuta esta función que cierra sesión y muestra mensaje de exito
 function recibeRespuesta(respuesta){
 	alert(respuesta);
 	location.href="../../vistas/info_sesion/cerrar_sesion.php";
@@ -331,7 +339,7 @@ function recibeRespuesta(respuesta){
 
 
 
-
+//Valida si las respuestas opcionales se contestaron o no
 function validaPreguntas(){
 	var respuestas=0;
 	for (var i = 40; i < resp_array.length; i++) {
@@ -353,7 +361,7 @@ function validaPreguntas(){
 		return false;
 	}
 }
-
+//Funcion que muestra que se estan guardando las respuestas
 function mostrarLoading(){
 
 

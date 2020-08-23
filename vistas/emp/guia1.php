@@ -13,6 +13,7 @@
     // error_reporting(0);
     $sesion  = $_SESSION['usuario'];
     $usuario = unserialize($sesion);
+    //Se valida si hay sesión o no
     if (!isset($sesion)) {
         header("Location:../../index.html");
         die();

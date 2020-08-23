@@ -1,15 +1,10 @@
   <!DOCTYPE doctype html>
-  <html lang="en">
+  <?php  
 
-  <?php
-    require_once ("../../php/controller/CtrlGuia2.php");
-    require_once ("../../php/DTO/PreguntaDTO.php");
-    include '../../php/controller/CtrlEmpleados.php';
+
     include '../../php/DTO/UsuarioDTO.php';
-    $ctrlEmpleados= new CtrlEmpleados();
-    $listaNivelesEstudios= $ctrlEmpleados->getNivelEstudios();
-    $divisiones=$ctrlEmpleados->getDivisiones();
-    $listaPuestos=$ctrlEmpleados->getPuestos();
+     include '../../php/controller/CtrlEmpleados.php';
+   
     session_start();
     // error_reporting(0);
     $sesion  = $_SESSION['usuario'];
@@ -20,13 +15,15 @@
         die();
     }else if(isset($sesion)){
 
-        if($usuario->getStatus()!=2){
+        if($usuario->getStatus()!=3){
           header("Location:../../vistas/iniciar_sesion/acceso_denegado.php");
 
         }
     }
 
   ?>
+  <html lang="en">
+  
       <head>
           <meta charset="utf-8">
               <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
@@ -51,8 +48,6 @@
           </meta>
       </head>
       <body>
-        
-        <input type="hidden" name="usuario" id="usuario" value="<?php echo $usuario->getNum_empleado()?>">
           <header>
               <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
                   <a class="navbar-brand" href="#">
@@ -93,7 +88,7 @@
                             <span>
                                 <strong>
                                     <h2>
-                                        Guía de Referencia II
+                                        Guía de Referencia IV
                                     </h2>
                                 </strong>
                                 <br/>
@@ -102,10 +97,7 @@
                             <br/>
                         </h4>
                         <p>
-                            <strong>
-                                CUESTIONARIO PARA IDENTIFICAR LOS FACTORES DE RIESGO PSICOSOCIAL EN LOS CENTROS
-                                DE TRABAJO.
-                            </strong>
+                            
                         </p>
                         
                     </center>
@@ -113,56 +105,14 @@
                 <!-- /container -->
             </hr>
         </main>
-      <hr>
-     <center>
-        <h3>Contesta la Guía que se le indica</h3>
-      </center>
-      <form id="formulario">
-        <div class="container-norma"  id="contenedor" name="con1" style="display: block;"> 
-          <div class="card">            
-            <div id="tab" class="card-body">
-              <center id="contestar">
-              <button  class="btn-primary btn" onclick="contestar()">Contestar</button>
-              </center>         
-            </div>
-          </div>
-        </div>
-         <!-- /container -->
-         <!-- Button trigger modal -->
-          
+         
+        <div class="container-norma"> 
 
-          <!-- Modal -->
-          <div class="modal fade" id="seccionModal" tabindex="-1" role="dialog" 
-            aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel"></h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body" id="seccion_desc">
-                  
-                </div>
-                <div class="modal-footer" id="botones_modal">
-                  
-                </div>
-              </div>
-            </div>
-          </div>
-        <br>
-        
-        
-         </form>
-        <br/>
-        <br/>
-          <br/>
-          <br/>
-      </main>
-          <br/>
-          <br/>
-          <br/>
+        <div class="card" id="datos_emp">
+          <h4 class="card-header"><strong>Guia IV</strong></h4>              
+          <div class="card-body">
+                         <center><div style="width: 60%"><h4>En este espacio se mostrarán las políticas de la institución para la identificación, análisis y prevención de los Factores de riesgo psicosocial en el trabajo.</h4></div></center>
+          </div></div> </div><br/><br/><br/><br/><br/>
           <footer class="footer">
               <div class="container">
                   <p>
@@ -171,7 +121,7 @@
                           Privacy
                       </a>
                       ·
-                      <a href="#" style="color: white; ">
+                      <a href="#" style="color: white;">
                           Terms
                       </a>
                   </p>
@@ -185,8 +135,8 @@
           </script>
           <script src="../../resources/bootstrap/js/bootstrap.min.js"></script>
           <script src="../../resources/js/jquery-ui.js"></script>
-          <script src="../../resources/js/guia2.js"></script>
-          <script>
-          </script>
+         
+
+         
       </body>
   </html>

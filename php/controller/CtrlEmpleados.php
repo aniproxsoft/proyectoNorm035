@@ -16,7 +16,7 @@ class CtrlEmpleados {
 	public function __construct(){
 
 	}
-
+	//Consulta en la Base de datos los Niveles de estudios que puede tener un empleado
 	public function getNivelEstudios(){
  		try {
  			$this->db       = new connectionDB();
@@ -39,7 +39,7 @@ class CtrlEmpleados {
 		}
  	}
 
-
+ 	//Consulta en la Base de Datos las Divisiones de la Universidad
  	public function getDivisiones(){
  		try {
  			$this->db       = new connectionDB();
@@ -61,6 +61,8 @@ class CtrlEmpleados {
 			echo 'Error conectando con la base de datos: ' . $e->getMessage();
 		}
  	}
+
+ 	//Consulta en la Base de Datos los Puestos que puede tener un Empleado
 
   	public function getPuestos(){
  		try {
@@ -84,6 +86,7 @@ class CtrlEmpleados {
 		}
  	}
 
+ 	//Consulta todos los empleados de la base de datos 
 	public function getEmpleados(){
  		try {
  			$this->db       = new connectionDB();
@@ -108,6 +111,7 @@ class CtrlEmpleados {
 		return $this->empleados;
 
 	}
+	// Consulta en la base de datos los empleados sin el administrador y los que ya contestaron al menos una Guía
 	public function getEmpleadosSinAdmin(){
  		try {
  			$this->db       = new connectionDB();
@@ -132,6 +136,7 @@ class CtrlEmpleados {
 		return $this->empleados;
 
 	}
+	//Consulta la información de un solo empleado (El que el administrador eligió)
 	public function getEmpleadoSeleccionado($num_empleado){
  		try {
  			$this->db       = new connectionDB();
@@ -157,6 +162,7 @@ class CtrlEmpleados {
 		return $this->empleados;
 
 	}
+	// Consulta en la base de datos si es que los empleados ya realizaron las guias o no y si es que tienen el acceso permitido o no
 	public function getNumEmpleados(){
  		try {
  			$this->db       = new connectionDB();
@@ -179,7 +185,7 @@ class CtrlEmpleados {
 		return $this->empleados;
 
 	}
-
+	//Consulta los resultados de la Guía 1 de un solo empleado
 	public function getResultadoGuia($num_empleado){
  		try {
  			$this->db       = new connectionDB();
@@ -203,6 +209,7 @@ class CtrlEmpleados {
 		return $this->resultadosguia;
 
 	}
+	//Consulta los resultados de la Guía 2 de un solo empleado
 
 	public function getResultadoGuia2($num_empleado){
  		try {
@@ -227,6 +234,7 @@ class CtrlEmpleados {
 		return $this->resultadosguia;
 
 	}
+	//Consulta en la base de datos el resultado de la Guía 3 de un solo empleado
 	public function getResultadoGuia3($num_empleado){
  		try {
  			$this->db       = new connectionDB();
@@ -250,7 +258,7 @@ class CtrlEmpleados {
 		return $this->resultadosguia;
 
 	}
-
+	//Obtiene de la Base de datos lass Guías que un empleado ya realizó
 	public function getGuiasResueltas($num_empleado){
  		try {
  			$this->db       = new connectionDB();
@@ -274,6 +282,7 @@ class CtrlEmpleados {
 		return $this->guiasResultas;
 
 	}
+	//Obtiene el resultado  de la calificación total de la Guía 2 en la base de datos
 	public function getResultadosGlobalGuia2($num_empleado){
  		try {
  			$this->db       = new connectionDB();
@@ -297,6 +306,7 @@ class CtrlEmpleados {
 		return $this->global;
 
 	}
+	//Obtiene el resultado  de la calificación por categoria de la Guía 2 en la base de datos
 
  	public function getResultadosCategoriaGuia2($num_empleado){
  		try {
@@ -321,6 +331,8 @@ class CtrlEmpleados {
 		return $this->categorias;
 
 	}
+	//Obtiene el resultado  de la calificación por Dominio de la Guía 2 en la base de datos
+	
 
 	public function getResultadosDominioGuia2($num_empleado){
  		try {
@@ -345,6 +357,8 @@ class CtrlEmpleados {
 		return $this->dominio;
 
 	}
+	//Obtiene el resultado  de la calificación total de la Guía 3 en la base de datos
+
 	public function getResultadosGlobalGuia3($num_empleado){
  		try {
  			$this->db       = new connectionDB();
@@ -368,6 +382,7 @@ class CtrlEmpleados {
 		return $this->global;
 
 	}
+	//Obtiene el resultado  de la calificación por Categoria de la Guía 3 en la base de datos
 
  	public function getResultadosCategoriaGuia3($num_empleado){
  		try {
@@ -392,6 +407,7 @@ class CtrlEmpleados {
 		return $this->categorias;
 
 	}
+	//Obtiene el resultado  de la calificación por Dominio de la Guía 3 en la base de datos
 
 	public function getResultadosDominioGuia3($num_empleado){
  		try {
@@ -416,7 +432,7 @@ class CtrlEmpleados {
 		return $this->dominio;
 
 	}
-
+	//Consulta de la base de datos las sugerencias a tomar por cada resultado de la Guía2
 	public function getCriterios(){
  		try {
  			$this->db       = new connectionDB();

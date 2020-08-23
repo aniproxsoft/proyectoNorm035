@@ -1,14 +1,14 @@
 alert("Una vez contestada una pregunta NO PODRÁS CAMBIAR LA RESPUESTA");
 var resp_array = new Array();
 var empleado_array= new Array();
-                
+//Funcion que verifica que se escriban solo numeros en los campos numericos              
 function solo_numeros(e){
   var keynum = window.event ? window.event.keyCode : e.which;
   if ((keynum == 8) || (keynum == 46))
     return true;
     return /\d/.test(String.fromCharCode(keynum));
   }
-
+//Función que valida los campos
 function llevar_json(){
   var nombre=document.getElementById("nombre").value;
   var apellidos=document.getElementById("apellidos").value;
@@ -180,7 +180,7 @@ function llevar_json(){
     
   }
 }
-
+//Funcion que manda el json con las respuestas  y los datos del empleado para guardar en la base de datos
 function insertaRespuestas(res){
   
   var json_res=JSON.stringify(resp_array);
@@ -201,7 +201,7 @@ function insertaRespuestas(res){
   location.href="../../vistas/info_sesion/cerrar_sesion.php";
  }
 
-
+//Función que valida que las fechas sean congruentes
  function validaFehas(fechaActual,fecha){
     var valueStart=fechaActual.split("-");
     var valueEnd=fecha.split("-");
@@ -214,6 +214,7 @@ function insertaRespuestas(res){
 
  }
 
+//Funcion que le da formato a la fecha para que se pueda guardar en la base de datos
 function formatearFecha(fechaActual){
   return fechaActual.getDate()+"-"+
   (fechaActual.getMonth()+1)+"-"+fechaActual.getFullYear();

@@ -23,7 +23,7 @@ class PreguntaDTO {
         $this->pregunta_desc4= array();
         
     }
-
+    // Función que hace una consulta de la base de datos de las preguntas de la sección 1 de la Guía 1
     public function get_preguntas1(){
         $consulta= $this->conexion->prepare("CALL sp_get_preguntasI()");
         $consulta->execute();
@@ -33,6 +33,8 @@ class PreguntaDTO {
         }
         return $this->pregunta_desc;
     }
+    // Función que hace una consulta de la base de datos de las preguntas de la sección 2 de la Guía 1
+
      public function get_preguntas2(){
         $consulta= $this->conexion->prepare("CALL sp_get_preguntas2()");
         $consulta->execute();
@@ -42,6 +44,8 @@ class PreguntaDTO {
         }
         return $this->pregunta_desc2;
     }
+    // Función hace una consulta de la base de datos de las preguntas de la sección 3 de la Guía 1
+
     public function get_preguntas3(){
         $consulta= $this->conexion->prepare("CALL sp_get_preguntas3()");
         $consulta->execute();
@@ -51,6 +55,8 @@ class PreguntaDTO {
         }
         return $this->pregunta_desc3;
     }
+    // Función que hace una consulta de la base de datos de las preguntas de la sección 4 de la Guía 1
+
     public function get_preguntas4(){
         $consulta= $this->conexion->prepare("CALL sp_get_preguntas4()");
         $consulta->execute();
@@ -63,6 +69,7 @@ class PreguntaDTO {
 
 
     //Guia de referencia 2
+    //Consulta en la base de datos las secciones de la guia 2
      public function get_secciones_guia_2(){
         $consulta= $this->conexion->prepare("CALL sp_get_secciones_guia_2()");
         $consulta->execute();
@@ -78,6 +85,7 @@ class PreguntaDTO {
 
 
     //Preguntas de la guia 2
+    //Consulta en la base de datos las preguntas de la Guía 2 según la sección
     public function get_preguntas_guia_2($opc){
         
         $consulta= $this->conexion->prepare("CALL sp_get_preguntas_guia_2(?)");
@@ -92,7 +100,7 @@ class PreguntaDTO {
     }
 
     //Guia de referencia 3
-
+    // Consulta en la base de datos las secciones de la Guia 3
     public function get_secciones_guia_3(){
         $consulta= $this->conexion->prepare("CALL sp_get_secciones_guia_3()");
         $consulta->execute();
@@ -106,6 +114,7 @@ class PreguntaDTO {
     } 
 
     //Preguntas de la guia 3
+    // Consulta en la Base de datos las preguntas de las secciones de la Guía 3 Según la sección
     public function get_preguntas_guia_3($opc){
         
         $consulta= $this->conexion->prepare("CALL sp_get_preguntas_guia_3(?)");
